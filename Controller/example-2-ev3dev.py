@@ -15,8 +15,8 @@ mB = ev3.LargeMotor('outB')
 #THRESHOLD_LEFT = 30
 #THRESHOLD_RIGHT = 350
 
-#BASE_SPEED = 30
-#TURN_SPEED = 80
+BASE_SPEED = 30
+TURN_SPEED = 50
 
 # Check if the motors are connected
 #assert lightSensorLeft.connected, "LightSensorLeft(ColorSensor) is not connected"
@@ -55,10 +55,15 @@ while True:
 	#else:
 	#	mA.duty_cycle_sp = BASE_SPEED
 
-
+	print("Ko lort")
 	#if sensorLeft < THRESHOLD_LEFT:
 	mB.duty_cycle_sp = TURN_SPEED
 	#else:
 	#	mB.duty_cycle_sp = BASE_SPEED
 	sl(2)
 	mA.duty_cycle_sp = -TURN_SPEED
+	sl(1)
+	mA.duty_cycle_sp = TURN_SPEED
+	sl(2)
+	mB.duty_cycle_sp = -TURN_SPEED
+	sl(1)
