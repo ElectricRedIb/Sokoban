@@ -6,4 +6,4 @@ ssh robot@192.168.0.1
 
 # How to sent file
 
-scp robot@192.168.0.1:/home/robot/controllers "$PathToFile"
+scp robot@192.168.0.1:/home/robot/programs "$PathToFile"
