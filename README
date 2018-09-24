@@ -1,0 +1,9 @@
+# How to connect to the EV3
+# connect via Bluetooth
+
+ssh robot@192.168.0.1
+    password maker
+
+# How to sent file
+
+scp robot@192.168.0.1:/home/robot/controllers "$PathToFile"
