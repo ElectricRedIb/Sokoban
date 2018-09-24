@@ -10,13 +10,14 @@ mB = ev3.LargeMotor('outB')
 
 #lightSensorLeft = ev3.ColorSensor('in1')
 #lightSensorRight = ev3.LightSensor('in2')
-
+gyro = ev3.GyroSensor('in3')
+gyro.mode='GYRO-ANG'
 # Use constants to later acces motor speeds and sensor thresholds
 #THRESHOLD_LEFT = 30
 #THRESHOLD_RIGHT = 350
 
 BASE_SPEED = 30
-TURN_SPEED = 50
+TURN_SPEED = 100
 
 # Check if the motors are connected
 #assert lightSensorLeft.connected, "LightSensorLeft(ColorSensor) is not connected"
@@ -26,8 +27,8 @@ TURN_SPEED = 50
 mB.run_direct()
 mA.run_direct()
 
-mA.polarity = "inversed"
-mB.polarity = "inversed"
+mA.polarity = "normal"
+mB.polarity = "normal"
 
 # The example doesn't end on its own.
 # Use CTRL-C to exit it (needs command line).
@@ -46,6 +47,10 @@ print('Press Ctrl+C to exit')
 
 # Endless loop reading sensors and controlling motors.
 while True:
+
+	angle = gyro.value()
+	print(angle)
+
 	#sensorLeft = lightSensorLeft.value()
 	#sensorRight = lightSensorRight.value()
 
@@ -55,15 +60,7 @@ while True:
 	#else:
 	#	mA.duty_cycle_sp = BASE_SPEED
 
-	print("Ko lort")
 	#if sensorLeft < THRESHOLD_LEFT:
-	mB.duty_cycle_sp = TURN_SPEED
+	mB.duty_cycle_sp = -TURN_SPEED
 	#else:
 	#	mB.duty_cycle_sp = BASE_SPEED
-	sl(2)
-	mA.duty_cycle_sp = -TURN_SPEED
-	sl(1)
-	mA.duty_cycle_sp = TURN_SPEED
-	sl(2)
-	mB.duty_cycle_sp = -TURN_SPEED
-	sl(1)
