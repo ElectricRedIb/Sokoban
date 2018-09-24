@@ -17,7 +17,7 @@ gyro.mode='GYRO-ANG'
 #THRESHOLD_RIGHT = 350
 
 BASE_SPEED = 30
-TURN_SPEED = 100
+TURN_SPEED = 50
 
 # Check if the motors are connected
 #assert lightSensorLeft.connected, "LightSensorLeft(ColorSensor) is not connected"
