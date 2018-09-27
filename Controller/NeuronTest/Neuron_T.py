@@ -61,19 +61,32 @@ while True:
 	motorC.duty_cycle_sp =BASE_SPEED
 	mB.duty_cycle_sp = BASE_SPEED
 '''
-w00 = 1
-w11 = 0.1
+
+'''
 alpha_a = -0.02
-theta_a = 100
+theta_a = 50
+sensorRight = 1/(1+ np.exp(alpha_a*(theta_a - lightSensorRight )))
+'''
+'''
+w00 = 1
+out0 = np.tanh(w00*sensorRight)
+'''
+class neuronInput:
+	"""docstring for neuronInput."""
+	alpha = -0.02
+	theta = 50
+	def __init__(self):
+		pass
+	def caloutput(self, input):
+		return 1/(1+ np.exp(self.alpha*(self.theta - input )))
+
+jj = neuronInput()
+
 lightSensorRight = 0
+sensorRight = 0
 while True:
-	sensorRight = 1/(1+ np.exp(alpha_a*(theta_a - lightSensorRight )))
+	sensorRight = jj.caloutput(lightSensorRight)
 	print('sensor neuron',sensorRight, 'raw sensor output', lightSensorRight)
-	out0 = np.tanh(w00*sensorRight)
-	#mA.duty_cycle_sp = out0
-	print("out put ",out0, "w00 ", w00 )
-	#w00 = w00 - 0.1
-	if abs(w00)<0.0001:
-		w00 = 0.0
+	out0 = np.tanh(sensorRight)
 	lightSensorRight  = lightSensorRight +1
 	t.sleep(0.25)
