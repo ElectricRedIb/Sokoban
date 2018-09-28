@@ -2,10 +2,10 @@
 #https://sites.google.com/site/ev3python/learn_ev3_python/using-sensors/sensor-modes
 #http://docs.ev3dev.org/projects/lego-linux-drivers/en/ev3dev-jessie/sensor_data.html
 
-#import ev3dev.ev3 as ev3
+import ev3dev.ev3 as ev3
 
-sensorLeft = 10#ev3.ColorSensor('in1')
-sensorRight = 70#ev3.ColorSensor('in2')
+sensorLeft = ev3.ColorSensor('in1')
+sensorRight = ev3.ColorSensor('in2')
 
 AMBIENT = 0
 REFLECT = 1
@@ -14,16 +14,16 @@ arrayofcolors = ('unknown','black','blue','green','yellow','red','white','brown'
 
 def setmodeSensorsLR(mode):
     if mode == 0:
-        #sensorLeft.mode = 'COL-AMBIENT' # measures lux
-        #sensorRight.mode = 'COL-AMBIENT' # measures lux
+        sensorLeft.mode = 'COL-AMBIENT' # measures lux
+        sensorRight.mode = 'COL-AMBIENT' # measures lux
         print("sensor mode set to ambient")
     elif mode == 1:
-        #sensorLeft.mode = 'COL-REFLECT' # measures light intensity
-        #sensorRight.mode = 'COL-REFLECT' # measures light intensity
+        sensorLeft.mode = 'COL-REFLECT' # measures light intensity
+        sensorRight.mode = 'COL-REFLECT' # measures light intensity
         print("sensor mode set to reflect")
     else:
-        #sensorLeft.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
-        #sensorRight.mode = COL-COLOR' # measures color corresponting to arrayofcolors
+        sensorLeft.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
+        sensorRight.mode = COL-COLOR' # measures color corresponting to arrayofcolors
         print("sensor mode set to color")
 
 backgroundValue = 50 # should be dynamic to the amount of background light
@@ -36,12 +36,12 @@ def binarize(sensorValue): # use with sensor on'COL-REFLECT' mode
 
 
 def readFunction():
-    #left = binarize(sensorLeft.value())
-    #right = binarize(sensorRight.value())
-    #print("Left",sensorLeft.value(),"Right", sensorRight.value())
-    left = binarize(sensorLeft)
-    right = binarize(sensorRight)
-    print("Left",sensorLeft,"Right", sensorRight)
+    left = binarize(sensorLeft.value())
+    right = binarize(sensorRight.value())
+    print("Left",sensorLeft.value(),"Right", sensorRight.value())
+    #left = binarize(sensorLeft)
+    #right = binarize(sensorRight)
+    #print("Left",sensorLeft,"Right", sensorRight)
 
 
     return left, right
