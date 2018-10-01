@@ -23,7 +23,7 @@ def setmodeSensorsLR(mode):
         print("sensor mode set to reflect")
     else:
         sensorLeft.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
-        sensorRight.mode = COL-COLOR' # measures color corresponting to arrayofcolors
+        sensorRight.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
         print("sensor mode set to color")
 
 backgroundValue = 50 # should be dynamic to the amount of background light
@@ -42,8 +42,7 @@ def readFunction():
     #left = binarize(sensorLeft)
     #right = binarize(sensorRight)
     #print("Left",sensorLeft,"Right", sensorRight)
-
-
+    
     return left, right
 
 

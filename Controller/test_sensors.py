@@ -18,6 +18,6 @@ print('Press Ctrl+C to exit')
 
 sensor.setmodeSensorsLR(sensor.COLOR)
 while True:
-    sensor.detectLine()
 
-    sleep(0.5)
+    left,right = sensor.readFunction()
+	sleep(1)

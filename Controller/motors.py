@@ -7,16 +7,16 @@ import ev3dev.ev3 as ev3
 
 motorLeft = ev3.LargeMotor('outA')
 motorRight = ev3.LargeMotor('outB')
-motorTurn = ev3.MediumMotor('outC')
+#motorTurn = ev3.MediumMotor('outC')
 
 
 
-def turnBackWheel(position):
-    motorTurn.run_to_rel_pos(position_sp=position, speed_sp=900, stop_action="hold")
+#def turnBackWheel(position):
+#    motorTurn.run_to_rel_pos(position_sp=position, speed_sp=900, stop_action="hold")
 def stopMotors():
     motorLeft.stop(stop_action="brake")
     motorRight.stop(stop_action="brake")
-    motorTurn.stop()
+#    motorTurn.stop()
 def driveLeft(speed): # speed -1000 to 1000 uses inbuild speed control
     motorLeft.run_forever(speed_sp=speed)
 def driveRight(speed): # speed -1000 to 1000 uses inbuild speed control
