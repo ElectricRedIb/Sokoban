@@ -1,0 +1,18 @@
+cols 07  rows 12    jewels 05
+X   X   X   X   X   X   X
+X   .   .   .   G   .   X
+X   .   .   .   .   .   X
+X   G   .   G   .   G   X
+X   .   .   X   .   X   X
+X   .   J   G   .   .   X
+X   X   X   .   J   .   X
+X   X   X   .   X   .   X
+X   .   J   J   .   .   X
+X   .   J   M   .   .   X
+X   .   .   .   X   X   X
+X   X   X   X   X
+
+
+X no path
+
+. symbols a cross
