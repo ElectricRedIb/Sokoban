@@ -5,11 +5,17 @@
 import ev3dev.ev3 as ev3
 
 sensorLeft = ev3.ColorSensor('in1')
-sensorRight = ev3.ColorSensor('in2')
+sensorRight = ev3.ColorSensor('in4')
+
 
 AMBIENT = 0
 REFLECT = 1
 COLOR = 2
+TOTALBLACK = 10
+HALFBLACKWHITE = 60
+BLACKLINE = 0
+ADJUSTSPEED = 1
+ONLINE = 2
 arrayofcolors = ('unknown','black','blue','green','yellow','red','white','brown')
 
 def setmodeSensorsLR(mode):
@@ -25,37 +31,18 @@ def setmodeSensorsLR(mode):
         sensorLeft.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
         sensorRight.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
         print("sensor mode set to color")
+ # should be dynamic to the amount of background light
 
-backgroundValue = 50 # should be dynamic to the amount of background light
 def binarize(sensorValue): # use with sensor on'COL-REFLECT' mode
-    if sensorValue > backgroundValue:
-        binary = 1
-    else:
-        binary = 0
-    return binary
+    if sensorValue < TOTALBLACK:
+        return BLACKLINE
+    if sensorValue < HALFBLACKWHITE:
+        return ADJUSTSPEED
+    return ONLINE
 
 
-def readFunction():
+def readLineSensors():
     left = binarize(sensorLeft.value())
     right = binarize(sensorRight.value())
-    print("Left",sensorLeft.value(),"Right", sensorRight.value())
-    #left = binarize(sensorLeft)
-    #right = binarize(sensorRight)
-    #print("Left",sensorLeft,"Right", sensorRight)
-    
+    #print('left',sensorLeft.value(),'right',sensorRight.value())
     return left, right
-
-
-def detectLine():
-    left, right = readFunction()
-    if left != right:
-        if left:
-            print("decrease speed on left")
-            return 1
-        else:
-            print("decrease speed on right")
-            return 2
-
-
-    print("on the line")
-    return 0

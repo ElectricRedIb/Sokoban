@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sensor
+import motors
 import signal
 from time import sleep
 
@@ -9,15 +9,39 @@ from time import sleep
 #exit control
 def signal_handler(sig, frame):
 	print('Shutting down gracefully')
+	motors.stopMotors()
 	exit(0)
 
 # Install the signal handler for CTRL+C
 signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C to exit')
 
+DRIVE = 0
+TURN = 1
+REVERSE = 2
+PUSH = 3
+GOAL = 4
 
-sensor.setmodeSensorsLR(sensor.COLOR)
-while True:
+DRIVESPEED = 600
 
-    left,right = sensor.readFunction()
-	sleep(1)
+state = DRIVE
+b = 1
+while b:
+	if state == DRIVE:
+		if motors.drive(-DRIVESPEED):
+			state = TURN
+	elif state == TURN:
+		if (motors.turn('right',1)):
+			state = DRIVE
+		else:
+			state = GOAL
+	elif state == REVERSE:
+		pass
+	elif state == PUSH:
+		pass
+	elif state == GOAL:
+		b = 0
+
+
+print('Program ended')
+motors.stopMotors()
