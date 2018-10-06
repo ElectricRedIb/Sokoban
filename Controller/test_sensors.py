@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import motors
+import sensor
 import signal
 from time import sleep
 
@@ -22,19 +23,19 @@ REVERSE = 2
 PUSH = 3
 GOAL = 4
 
-DRIVESPEED = 600
+FORWARD = 1
+BACKWARDS = -1
 
 state = DRIVE
 b = 1
+
 while b:
 	if state == DRIVE:
-		if motors.drive(-DRIVESPEED):
+		if motors.drive(FORWARD):
 			state = TURN
 	elif state == TURN:
-		if (motors.turn('right',1)):
+		if (motors.turn('left',1)):
 			state = DRIVE
-		else:
-			state = GOAL
 	elif state == REVERSE:
 		pass
 	elif state == PUSH:
