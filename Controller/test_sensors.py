@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
+import controller
 import motors
-import sensor
 import signal
 from time import sleep
 
@@ -28,20 +28,25 @@ BACKWARDS = -1
 
 state = DRIVE
 b = 1
-
+DOTHIS = [DRIVE,DRIVE,TURN,GOAL]
+pointer = 0
 while b:
+	state = DOTHIS[pointer]
 	if state == DRIVE:
-		if motors.drive(FORWARD):
-			state = TURN
+		if controller.drive(FORWARD):
+			pointer = pointer + 1
+			print("change state",DOTHIS[pointer])
 	elif state == TURN:
-		if (motors.turn('left',1)):
-			state = DRIVE
+		if (controller.turn('right',1)):
+			pointer = pointer + 1
+			print("change state",DOTHIS[pointer])
 	elif state == REVERSE:
-		pass
+		if controller.drive(BACKWARDS):
+			state = GOAL
 	elif state == PUSH:
 		pass
 	elif state == GOAL:
-		b = 0
+		pointer = 0
 
 
 print('Program ended')

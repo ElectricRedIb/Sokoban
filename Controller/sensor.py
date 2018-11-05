@@ -39,7 +39,10 @@ def setmodeSensorsLR(mode):
         sensorRight.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
         print("sensor mode set to color")
  # should be dynamic to the amount of background light
-
+def readRight():
+    return sensorRight.value()
+def readLeft():
+    return sensorLeft.value()
 def binarize(sensorValue): # use with sensor on'COL-REFLECT' mode
     if sensorValue < TOTALBLACK:
         return BLACKLINE
@@ -71,5 +74,5 @@ def readGripSensor():
         gripper = ONLINE
     else:
         gripper = BLACKLINE
-    print("gripper value", gripper)
+    #print("gripper value", gripper)
     return gripper
