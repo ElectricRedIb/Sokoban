@@ -1,10 +1,6 @@
+import sys
+
 class sokobanSolver():
-    #TreeOfStates = []
-    #goalpos = []
-    #state = []
-    #cols = []
-    #rows = []
-    #jewels
     def __init__(self):
         self.TreeOfStates = []
         map = ""
@@ -12,7 +8,7 @@ class sokobanSolver():
 
         with open("../Information/2017-competation-map", 'r') as file:
             setting = file.readline()
-            lines = file.readlines()[1:]
+            lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
         for line in lines:
             map += line
@@ -84,13 +80,26 @@ class sokobanSolver():
                     #string[pos] = '.'
                     self.TreeOfStates.append(string)
 
+    def print_map(self, state):
+        print("\n")
+        i = 0
+        for c in state:
+            sys.stdout.write(c+"\t")
+            i += 1
+            if i > self.cols - 1:
+                i = 0
+                print("\n")
+        print("\n")
+
+
+
     def test(self):
         for idx, c in enumerate(self.state):
             if c == 'M':
                 self.get_available_states(self.state, idx)
 
         for stt in self.TreeOfStates:
-            print(stt)
+            self.print_map(stt)
 
 
 
