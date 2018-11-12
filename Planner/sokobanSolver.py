@@ -31,42 +31,33 @@ class sokobanSolver():
                 return False
         return True
 
-    def get_available_states(self, state , pos):
+    def get_available_states(self, state, pos):
         tempPos = [pos+self.cols, pos+1, pos-self.cols, pos-1]
         for idx, x in  enumerate(tempPos):
-            #print(tempPos[idx])
+
             if state[x] != 'X':
                 if state[x] == 'J':
+
                     if idx == 0:
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
                             string = state[:pos -1] + '.' + state[pos:x - 1] + 'M' + state[x:]
-                            #string[x] = 'M'
-                            #string[pos] = '.'
-                            #string[x+self.cols] = 'J'
                             self.TreeOfStates.append(string)
+
                     elif idx == 1:
-                        if state[x +1] == '.' or state[x +1] == 'G' :
+                        if state[x +1] == '.' or state[x +1] == 'G':
                             string = state[:x - 1] + '.M' + state[x:]
-                            #string = state
-                            #string[x] = 'M'
-                            #string[pos] = '.'
-                            #string[x + 1] = 'J'
                             self.TreeOfStates.append(string)
 
                     elif idx == 2:
                         if state[x - self.cols] == '.' or state[x - self.cols] == 'G':
                             string  = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
-                            #string[x] = 'M'
-                            #string[pos] = '.'
-                            #string[x - self.cols] = 'J'
                             self.TreeOfStates.append(string)
+
                     elif idx == 3:
                         if state[x - 1] == '.' or state[x - 1] == 'G':
                             string = state[:x - 1] +'JM.' + state[x + 2:]
-                            #string[x] = 'M'
-                            #string[pos] = '.'
-                            #string[x - 1] = 'J'
                             self.TreeOfStates.append(string)
+
                 elif state[x] == '.' or state[x] == 'G':
                     if idx == 0:
                         string = state[:pos] + '.' + state[pos + 1:x] + 'M' + state[x + 1:]
@@ -76,8 +67,6 @@ class sokobanSolver():
                         string = state[:x] + 'M' + state[x + 1:pos - 1] + '.' + state[pos:]
                     elif idx == 3:
                         string = state[:x - 1] + 'M.' + state[x + 1:]
-                    #string[x] = 'M'
-                    #string[pos] = '.'
                     self.TreeOfStates.append(string)
 
     def print_map(self, state):
