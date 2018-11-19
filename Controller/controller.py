@@ -2,20 +2,20 @@
 import sensor
 import motors
 import lineFollow
-import difreg
-
+from difreg import difreg
+from time import sleep
 
 
 sensor.setmodeSensorsLR(sensor.REFLECT)
 
-TURNSPEED = 200
-DRIVESPEED = 800
+TURNSPEED = 100
+DRIVESPEED = 700
 
 
 #rightReg = lineFollow.lineFollow(DRIVESPEED,sensor.readRight())
 #leftReg = lineFollow.lineFollow(DRIVESPEED,sensor.readLeft())
 
-reg = difreg.difreg()
+reg = difreg()
 
 
 def drive(direction):
@@ -42,11 +42,50 @@ def drive(direction):
     motors.driveRightOnly(speed - errL)
     motors.driveLeftOnly(speed - errR)
     left, right = sensor.readLineSensors()
-    print("err right",errR, "left",errL)
+    #print("err right",errR, "left",errL)
     if not (left + right):
         #motors.stopMotors();
         return 1
     return 0
+
+
+
+
+def turn(direction,t):
+    """returns 1 when turning is done"""
+    state = 0
+    turnsteps = 100
+    while True:
+        err = sensor.readLeft() - sensor.readRight()
+
+        if state == 0:
+            #motors.moveRel(115)
+            state = 1
+        elif state == 1:
+            if direction == 'right':
+                motors.moveRelT(turnsteps,'right')
+            else:
+                motors.moveRelT(turnsteps,'left')
+            if direction == 'right':
+                motors.driveRightOnly(-TURNSPEED)
+                motors.driveLeftOnly(TURNSPEED)
+            else:
+                motors.driveRightOnly(TURNSPEED)
+                motors.driveLeftOnly(-TURNSPEED)
+            state = 2
+        elif state == 2:
+            if abs(err) > 20:
+                state = 3
+        elif state == 3:
+            if abs(err) < 5:
+                motors.stopMotors()
+                return 1
+
+
+def rev():
+    motors.moveRel(-435) #550
+    return 1
+
 
 '''
 def turn(direction,turns):
@@ -57,11 +96,42 @@ def turn(direction,turns):
         pass
     return 1
 '''
+'''
+def turn(direction,t):
+    """returns 1 when turning is done"""
+    state = 0
+    turnsteps = 145
+    while True:
+        err = sensor.readLeft() - sensor.readRight()
 
+        if state == 0:
+            motors.moveRel(115)
+            state = 1
+        elif state == 1:
+            if direction == 'right':
+                motors.moveRelT(turnsteps,'right')
+
+            else:
+                motors.moveRelT(turnsteps,'left')
+            return 1
+'''
+
+
+
+
+
+
+
+
+
+
+
+'''
 def turn(direction,turns):
     done = 0
     state = 0
     amountOfTurns = turns
+
     while not done:
         left, right = sensor.readLineSensors()
         if state == 0:
@@ -124,3 +194,4 @@ def turn(direction,turns):
             motors.stopMotors()
             done = 1
     return 1
+'''

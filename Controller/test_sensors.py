@@ -18,33 +18,40 @@ signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C to exit')
 
 DRIVE = 0
-TURN = 1
-REVERSE = 2
-PUSH = 3
-GOAL = 4
+TURNRIGHT = 1
+TURNLEFT = 2
+REVERSE = 3
+PUSH = 4
+GOAL = 5
 
 FORWARD = 1
 BACKWARDS = -1
 
 state = DRIVE
-b = 1
-DOTHIS = [DRIVE,DRIVE,TURN,GOAL]
+complete = 1
+DOTHIS = [DRIVE,GOAL]##[PUSH,REVERSE,TURNRIGHT,DRIVE,TURNLEFT,DRIVE,TURNLEFT,DRIVE,TURNLEFT,GOAL]#[DRIVE,REVERSE,TURNRIGHT,GOAL]#[DRIVE,TURNLEFT,DRIVE,TURNLEFT,DRIVE,TURNLEFT,DRIVE,TURNLEFT,DRIVE,TURNRIGHT,DRIVE,TURNRIGHT,DRIVE,TURNRIGHT,DRIVE,TURNRIGHT,GOAL]
 pointer = 0
-while b:
+while complete:
 	state = DOTHIS[pointer]
 	if state == DRIVE:
 		if controller.drive(FORWARD):
 			pointer = pointer + 1
-			print("change state",DOTHIS[pointer])
-	elif state == TURN:
+			motors.moveRel(115)
+			#print("change state",DOTHIS[pointer])
+	elif state == TURNRIGHT:
 		if (controller.turn('right',1)):
 			pointer = pointer + 1
-			print("change state",DOTHIS[pointer])
+			#print("change state",DOTHIS[pointer])
+	elif state == TURNLEFT:
+		if (controller.turn('left',1)):
+			pointer = pointer + 1
+			#print("change state",DOTHIS[pointer])
 	elif state == REVERSE:
-		if controller.drive(BACKWARDS):
-			state = GOAL
+		if controller.rev():
+			pointer = pointer + 1
 	elif state == PUSH:
-		pass
+		if controller.drive(FORWARD):
+			pointer = pointer + 1
 	elif state == GOAL:
 		pointer = 0
 

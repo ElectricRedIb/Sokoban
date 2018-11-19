@@ -18,6 +18,20 @@ def moveRel(position):
     motorRight.run_to_rel_pos(position_sp=position, speed_sp=600, stop_action="brake")
     motorLeft.run_to_rel_pos(position_sp=position, speed_sp=600, stop_action="brake")
     motorRight.wait_while('running')
+
+def moveRelT(position,dir):
+    turnspeed = 900
+    if dir == 'right':
+        l = position
+        r = position*-1
+    else:
+        l = position*-1
+        r = position
+
+    motorRight.run_to_rel_pos(position_sp=r, speed_sp=turnspeed, stop_action="brake")
+    motorLeft.run_to_rel_pos(position_sp=l, speed_sp=turnspeed, stop_action="brake")
+    motorRight.wait_while('running')
+    motorLeft.wait_while('running')
 '''
 def turnRight(position):
     motorRight.run_to_rel_pos(position_sp=position, speed_sp=600, stop_action="brake")
