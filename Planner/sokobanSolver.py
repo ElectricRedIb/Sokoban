@@ -24,7 +24,7 @@ class sokobanSolver():
         map = ""
         self.goalpos = []
 
-        with open("../Information/testmap-medium2", 'r') as file:
+        with open("../Information/2017-competation-map", 'r') as file:
             setting = file.readline()
             lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
@@ -125,7 +125,7 @@ class sokobanSolver():
                     if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
                         dead = True
                         for g in self.goalpos:
-                            if c == g:
+                            if idx == g:
                                 dead = False
                                 break
                         if dead:
@@ -134,12 +134,42 @@ class sokobanSolver():
                     if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
                         dead = True
                         for g in self.goalpos:
-                            if c == g:
+                            if idx == g:
                                 dead = False
                                 break
                         if dead:
                             return True
         return dead
+
+    def stateCheck(self,node):
+        temp = node.parent
+        while not temp == None:
+            if temp.state == node.state:
+                return False
+            temp = temp.parent
+        return True
+
+    def printSolution(self,node):
+        #while not node == None:
+        if node.parent == None:
+            return node
+        self.print_map(self.printSolution(node.parent))
+
+    def Solution(self,node):
+        solution = ""
+        temp = node
+        while not temp.parent == None:
+            if (temp.pos - temp.parent.pos == -1):
+                solution = 'L' + solution
+            elif (temp.pos - temp.parent.pos == 1):
+                solution = 'R' + solution
+            elif (temp.pos - temp.parent.pos < -1):
+                solution = 'U' + solution
+            elif (temp.pos - temp.parent.pos > 1):
+                solution = 'D' + solution
+            temp = temp.parent
+
+        return solution
 
 
 
@@ -149,14 +179,14 @@ class sokobanSolver():
            # print("Parent:")
             #self.print_map(n.parent)
            # print(" current:")
-           # self.print_map(n)
-
+            #self.print_map(n)
             if(self.goal_check(n)):
-                self.print_map(n)
+                print(self.Solution(n))
                 break
-            elif not self.isdead(n):
+            elif not self.isdead(n) and self.stateCheck(n):
                 self.get_available_states(n)
 
+        #print("Couldn't solve map")
 
 
 
