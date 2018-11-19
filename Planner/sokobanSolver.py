@@ -24,7 +24,7 @@ class sokobanSolver():
         map = ""
         self.goalpos = []
 
-        with open("../Information/2017-competation-map", 'r') as file:
+        with open("../Information/testmap-medium2", 'r') as file:
             setting = file.readline()
             lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
@@ -153,7 +153,9 @@ class sokobanSolver():
         #while not node == None:
         if node.parent == None:
             return node
-        self.print_map(self.printSolution(node.parent))
+        else:
+            self.print_map(self.printSolution(node.parent))
+            return node
 
     def Solution(self,node):
         solution = ""
@@ -181,7 +183,8 @@ class sokobanSolver():
            # print(" current:")
             #self.print_map(n)
             if(self.goal_check(n)):
-                print(self.Solution(n))
+                print(self.printSolution(n))
+                self.print_map(n)
                 break
             elif not self.isdead(n) and self.stateCheck(n):
                 self.get_available_states(n)
