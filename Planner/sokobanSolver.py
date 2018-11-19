@@ -24,7 +24,7 @@ class sokobanSolver():
         map = ""
         self.goalpos = []
 
-        with open("../Information/testmap-easy", 'r') as file:
+        with open("../Information/testmap-medium2", 'r') as file:
             setting = file.readline()
             lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
@@ -51,7 +51,7 @@ class sokobanSolver():
 
     def goal_check(self, node):
         for pos in self.goalpos:
-            if node.state[pos] != 'G':
+            if node.state[pos] != 'J':
                 return False
         return True
 
@@ -65,12 +65,12 @@ class sokobanSolver():
 
                     if idx == 0:
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
-                            string = state[:pos -1] + '.' + state[pos:x - 1] + 'M' + state[x:]
+                            string = state[:pos] + '.' + state[pos+ 1:x] + 'M' + state[x+1:x+self.cols] + 'J' + state[x+self.cols+1:]
                             self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                     elif idx == 1:
                         if state[x +1] == '.' or state[x +1] == 'G':
-                            string = state[:x - 1] + '.M' + state[x:]
+                            string = state[:x - 1] + '.MJ' + state[x+2:]
                             self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                     elif idx == 2:
@@ -87,15 +87,17 @@ class sokobanSolver():
                     if idx == 0:
                         string = state[:pos] + '.' + state[pos + 1:x] + 'M' + state[x + 1:]
                     elif idx == 1:
-                        string = state[:x - 1] + '.M' + state[x + 1:]
+                        string = state[:pos] + '.M' + state[x + 1:]
                     elif idx == 2:
-                        string = state[:x] + 'M' + state[x + 1:pos - 1] + '.' + state[pos:]
+                        string = state[:x] + 'M' + state[x + 1:pos] + '.' + state[pos+1:]
                     elif idx == 3:
-                        string = state[:x - 1] + 'M.' + state[x + 1:]
+                        string = state[:x] + 'M.' + state[pos+1:]
                     self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
     def print_map(self, node):
         print("\n")
+        if node == None:
+            return
         i = 0
         for c in node.state:
             sys.stdout.write(c+"\t")
@@ -115,13 +117,45 @@ class sokobanSolver():
         for stt in self.TreeOfStates:
             self.print_map(stt)
 
+    def isdead(self,node):
+        dead = False
+        for idx, c in enumerate(node.state):
+            if c == 'J':
+                if node.state[idx - 1] == 'X':
+                    if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
+                        dead = True
+                        for g in self.goalpos:
+                            if c == g:
+                                dead = False
+                                break
+                        if dead:
+                            return True
+                elif node.state[idx + 1] == 'X':
+                    if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
+                        dead = True
+                        for g in self.goalpos:
+                            if c == g:
+                                dead = False
+                                break
+                        if dead:
+                            return True
+        return dead
+
+
+
 
     def solve(self):
         for n in self.TreeOfStates:
+           # print("Parent:")
+            #self.print_map(n.parent)
+           # print(" current:")
+           # self.print_map(n)
+
             if(self.goal_check(n)):
                 self.print_map(n)
-            else:
-                self.get_available_states(self.TreeOfStates)
+                break
+            elif not self.isdead(n):
+                self.get_available_states(n)
 
 
 
