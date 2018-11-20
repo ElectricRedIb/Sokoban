@@ -17,41 +17,32 @@ DRIVESPEED = 700
 
 reg = difreg()
 
-
-def drive(direction):
-    '''
-    speed = DRIVESPEED * direction
-    #if sensor.readGripSensor() == sensor.BLACKLINE:
-    #    speed = TURNSPEED * direction
-    #    DRIVESPEED = speed
-    #    print("change speed")
-    #print("DRIVESPEED", DRIVESPEED)
-    left, right = sensor.readLineSensors()
-    errorR = rightReg.regPID(sensor.readRight())
-    errorL = leftReg.regPID(sensor.readLeft())
-    rr = speed- errorR* direction
-    rl = speed- errorL * direction
-    motors.driveRightOnly(rr)
-    motors.driveLeftOnly(rl)
-    #motorRight.run_forever(speed_sp=rr)
-    #motorLeft.run_forever(speed_sp=rl)
-    #print("speed right",rr,errorR,right, "left",rl,errorL,left)
-    '''
-    speed = DRIVESPEED * direction
+def lineFollowDrive():
+    speed = DRIVESPEED
     errR, errL = reg.regulate(sensor.readLeft(), sensor.readRight())
     motors.driveRightOnly(speed - errL)
     motors.driveLeftOnly(speed - errR)
-    left, right = sensor.readLineSensors()
-    #print("err right",errR, "left",errL)
-    if not (left + right):
-        #motors.stopMotors();
-        return 1
-    return 0
+
+def drive(crossSections):
+    crossSectionsPasted = 0
+    blackLinePasted = True
+    while True:
+        lineFollowDrive()
+        left, right = sensor.readLineSensors()
+        #print("err right",errR, "left",errL)
+        if left + right:
+            blackLinePasted = True
+        if not(left + right) and blackLinePasted:
+            #motors.stopMotors();
+            crossSectionsPasted = crossSectionsPasted + 1
+            blackLinePasted = False
+            if crossSectionsPasted >= crossSections:
+                return 1
 
 
 
 
-def turn(direction,t):
+def turn(direction):
     """returns 1 when turning is done"""
     state = 0
     turnsteps = 100
@@ -83,8 +74,20 @@ def turn(direction,t):
 
 
 def rev():
-    motors.moveRel(-435) #550
+    motors.moveRel(-260) #550 #260 ved 7.30 strøm!
     return 1
+
+def push():
+    gripperInitValue = sensor.readGripSensor()
+    while True:
+        lineFollowDrive()
+        gripperDifValue = abs(gripperInitValue - sensor.readGripSensor())
+        #print("diff", gripperDifValue)
+        if gripperDifValue > 200:# and blackLinePasted :
+            #crossSectionsPasted = crossSectionsPasted + 1
+            #blackLinePasted = False
+            #if crossSectionsPasted >= crossSections:
+            return 1
 
 
 '''

@@ -69,10 +69,12 @@ class avgFilter:
 
 filterGripper = avgFilter()
 def readGripSensor():
-    gripper = filterGripper.filterGripper()
-    if gripper > 50:
+    gripper = sensorGripper.value()#filterGripper.filterGripper()
+
+    '''if gripper > 50:
         gripper = ONLINE
     else:
-        gripper = BLACKLINE
+        gripper = BLACKLINE'''
+
     #print("gripper value", gripper)
     return gripper
