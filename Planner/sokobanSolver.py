@@ -7,13 +7,17 @@ class Node():
         self.children = []
         self.pos = pos
         self.heu = heu
+        self.step = 0
         #self.children = [node(self),node(self)]
 
     def makeChild(self,state, pos, heu):
         child = Node(self, state,pos, heu)
         self.children.append(child)
         return child
-
+    def stepped(self):
+        if self.parent == None:
+            self.step = 0
+        else: self.step = self.parent.step + 1
 
 
 
@@ -60,6 +64,7 @@ class sokobanSolver():
         return True
 
     def get_available_states(self, node):
+        node.stepped()
         pos = node.pos
         state = node.state
         tempPos = [pos+self.cols, pos+1, pos-self.cols, pos-1]
@@ -121,18 +126,18 @@ class sokobanSolver():
 
     def zombiePix(self,string):
         deadPixels = []
-        for x in [1,self.rows-1]:       # dead rows
+        for x in [1,self.rows-1]:       # dead cols
             for g in self.goalpos:
-                if g%self.rows == x :
+                if g%self.cols == x:
                     break
-                for ind in range(1,self.cols-1):
+                for ind in range(1,self.rows-1):
                     deadPixels.append(ind*x)
 
         for x in [1,self.cols-1]:       # dead cols
             for g in self.goalpos:
-                if g%self.cols == x :
+                if int(g/self.cols) == x:
                     break
-                for ind in range(1,self.rows-1):
+                for ind in range(1,self.cols-1):
                     deadPixels.append(ind*x)
 
         for idx, c in enumerate(string):    # corners that aren't goals
@@ -162,6 +167,7 @@ class sokobanSolver():
             if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and string[j + self.cols + 1] == 'X':
                 return True
 
+
         return False
 
     def calcManhatten(self, pos1, pos2):
@@ -169,21 +175,15 @@ class sokobanSolver():
         ydif = abs(int(pos1 / self.cols) - int(pos2 / self.cols))
         return xdif + ydif
 
-    def getHeuristic(self, string):
+    def getHeuristic(self, string, step, robPos):
         dist = 0
         tempcandist = 99
         tempgoaldist = 99
-        robPos = 0
         tempdist = 0
-
-        #Get robot position
-        for idx, c in enumerate(string):
-            if c == "M":
-                robPos = idx
 
         #Get manhatten distance from robot to nearest gem:
         for idx, c in enumerate(string):
-            if c == "J":
+            if c == "J" and not(self.goalpos[0] == idx or self.goalpos[1] == idx or self.goalpos[2] == idx or self.goalpos[3] == idx):
                 tempdist = self.calcManhatten(robPos, idx)
                 if  tempdist < tempcandist:
                     tempcandist = tempdist
@@ -192,7 +192,7 @@ class sokobanSolver():
 
         #Find manhatten distance between any can and nearest goal
         for idx, c in enumerate(string):
-            if c == "J":
+            if c == "J" and not(self.goalpos[0] == idx or self.goalpos[1] == idx or self.goalpos[2] == idx or self.goalpos[3] == idx):
                 for i in range(0, self.jewels):
                     tempdist = self.calcManhatten(idx, self.goalpos[i])
                     if tempdist < tempgoaldist:
@@ -201,15 +201,16 @@ class sokobanSolver():
                 dist += tempgoaldist
                 tempgoaldist = 99
 
-        return dist
+        goaldist = self.goalCount(string)
+        return (dist+step) * goaldist
 
     def inputNode(self,node,string,pos):
-        heu = self.getHeuristic(string)
+        heu = self.getHeuristic(string,node.step,pos)
         for idx , n in enumerate(self.TreeOfStates):
-            if heu <= n.heu:
+            if heu < n.heu:
                 self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
                 return
-        self.TreeOfStates.append(node.makeChild(string,pos,heu))
+        self.TreeOfStates.append(node.makeChild(string,pos,heu + node.step))
 
     def test(self):
         for idx, c in enumerate(self.TreeOfStates[0].state):
@@ -264,6 +265,14 @@ class sokobanSolver():
         #print(i, " - many layers")
         return True
 
+    def goalCount(self, string):
+        goalcount = 0
+        for pos in self.goalpos:
+            if not string[pos] == 'J':
+                goalcount += 1
+
+        return goalcount
+
     def printSolution(self,node):
         #while not node == None:
         if node.parent == None:
@@ -300,7 +309,7 @@ class sokobanSolver():
            # print("Parent:")
             #self.print_map(n.parent)
            # print(" current:")
-            if i%100 == 0:
+            if i%1000 == 0:
                 self.print_map(n)
             if(self.goal_check(n)):
                 print(self.printSolution(n))
