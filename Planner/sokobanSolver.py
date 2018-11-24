@@ -8,17 +8,20 @@ class Node():
         self.children = []
         self.pos = pos
         self.heu = heu
-        self.step = 0
+        if self.parent == None:
+            self.step = 0
+        else:
+            self.step = self.parent.step
         #self.children = [node(self),node(self)]
 
     def makeChild(self,state, pos, heu):
         child = Node(self, state,pos, heu)
         self.children.append(child)
         return child
+
     def stepped(self):
-        if self.parent == None:
-            self.step = 0
-        else: self.step = self.parent.step + 1
+        self.step = self.step + 1
+
     def __lt__(self, other):
         return self.heu < other.heu
 
@@ -153,6 +156,18 @@ class sokobanSolver():
                 elif string[idx + 1] == 'X':
                     if string[idx + self.cols] == 'X' or string[idx - self.cols] == 'X':
                         deadPixels.append(idx)
+        goalRow = False
+        tempIdx = 1
+        for idx in range(1,self.rows-1):
+            print(idx * self.cols + 1)
+            if string[idx * self.cols + 1] == 'G':
+                goalRow = True
+            elif string[idx * self.cols + 1] == 'X':
+                goalRow = False
+                tempIdx = idx
+        if not goalRow:
+            for idx in range(tempIdx,self.rows-1):
+                deadPixels.append(idx * self.cols + 1)
         return deadPixels
 
     def deadString(self,string, j):
@@ -207,7 +222,7 @@ class sokobanSolver():
                 tempgoaldist = 99
 
         goaldist = self.goalCount(string)
-        return (dist+step) * goaldist
+        return (dist * goaldist) + step
 
     def inputNode(self,node,string,pos):
         heu = self.getHeuristic(string,node.step,pos)
@@ -317,6 +332,7 @@ class sokobanSolver():
            # print(" current:")
             if i%1000 == 0:
                 self.print_map(n)
+                print(n.heu, " - ", n.step)
             if(self.goal_check(n)):
                 print(self.printSolution(n))
                 self.print_map(n)
