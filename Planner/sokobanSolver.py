@@ -69,25 +69,25 @@ class sokobanSolver():
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
                             string = state[:pos] + '.' + state[pos+ 1:x] + 'M' + state[x+1:x+self.cols] + 'J' + state[x+self.cols+1:]
                             if not self.deadString(string,x+self.cols):
-                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 1:
                         if state[x +1] == '.' or state[x +1] == 'G':
                             string = state[:x - 1] + '.MJ' + state[x+2:]
                             if not self.deadString(string, x + 1):
-                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 2:
                         if state[x - self.cols] == '.' or state[x - self.cols] == 'G':
                             string  = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
                             if not self.deadString(string, x - self.cols):
-                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 3:
                         if state[x - 1] == '.' or state[x - 1] == 'G':
                             string = state[:x - 1] +'JM.' + state[x + 2:]
                             if not self.deadString(string, x - 1):
-                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                 elif state[x] == '.' or state[x] == 'G':
                     if idx == 0:
@@ -140,6 +140,8 @@ class sokobanSolver():
         return deadPixels
 
     def deadString(self,string, j):
+        #if not string[j] == 'J' :
+         #   print("You Fucked Up")
         if string[j+1] == 'J':
             if string[j-self.cols] == 'X' and string[j + 1-self.cols] == 'X' or string[j+self.cols] == 'X' and string[j + 1+ self.cols] == 'X':
                 return True
@@ -155,6 +157,13 @@ class sokobanSolver():
             if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and \
                     string[j + self.cols + 1] == 'X':
                 return True
+
+    def calcManhatten(self,string):
+        dist = 0
+        for g in self.goalpos:
+            for idx, c in enumerate(string):
+                if c == 'J' and :
+
 
 
     def test(self):
