@@ -24,7 +24,7 @@ class sokobanSolver():
         map = ""
         self.goalpos = []
 
-        with open("../Information/testmap-medium2", 'r') as file:
+        with open("../Information/2018-competation-map", 'r') as file:
             setting = file.readline()
             lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
@@ -41,13 +41,16 @@ class sokobanSolver():
         self.rows = int(rows)
         self.jewels = int(jewels)
         self.TreeOfStates.append(startNode)
+        self.deadPixel = self.zombiePix(map)
+
 
         print(startNode)
 
         for idx, c in enumerate(map):
             if c == "G":
                 self.goalpos.append(idx)
-
+        print(self.deadPixel)
+        print(self.goalpos)
 
     def goal_check(self, node):
         for pos in self.goalpos:
@@ -62,26 +65,29 @@ class sokobanSolver():
         for idx, x in  enumerate(tempPos):
             if state[x] != 'X':
                 if state[x] == 'J':
-
                     if idx == 0:
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
                             string = state[:pos] + '.' + state[pos+ 1:x] + 'M' + state[x+1:x+self.cols] + 'J' + state[x+self.cols+1:]
-                            self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                            if not self.deadString(string,x+self.cols):
+                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                     elif idx == 1:
                         if state[x +1] == '.' or state[x +1] == 'G':
                             string = state[:x - 1] + '.MJ' + state[x+2:]
-                            self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                            if not self.deadString(string, x + 1):
+                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                     elif idx == 2:
                         if state[x - self.cols] == '.' or state[x - self.cols] == 'G':
                             string  = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
-                            self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                            if not self.deadString(string, x - self.cols):
+                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                     elif idx == 3:
                         if state[x - 1] == '.' or state[x - 1] == 'G':
                             string = state[:x - 1] +'JM.' + state[x + 2:]
-                            self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                            if not self.deadString(string, x - 1):
+                                self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
                 elif state[x] == '.' or state[x] == 'G':
                     if idx == 0:
@@ -107,6 +113,48 @@ class sokobanSolver():
                 print("\n")
         print("\n")
 
+    def zombiePix(self,string):
+        deadPixels = []
+        for x in [1,self.rows-1]:       # dead rows
+            for g in self.goalpos:
+                if g%self.rows == x :
+                    break
+                for ind in range(1,self.cols-1):
+                    deadPixels.append(ind*x)
+
+        for x in [1,self.cols-1]:       # dead cols
+            for g in self.goalpos:
+                if g%self.cols == x :
+                    break
+                for ind in range(1,self.rows-1):
+                    deadPixels.append(ind*x)
+
+        for idx, c in enumerate(string):    # corners that aren't goals
+            if not c == 'G' and not c == 'X':
+                if string[idx - 1] == 'X':
+                    if string[idx + self.cols] == 'X' or string[idx - self.cols] == 'X':
+                        deadPixels.append(idx)
+                elif string[idx + 1] == 'X':
+                    if string[idx + self.cols] == 'X' or string[idx - self.cols] == 'X':
+                        deadPixels.append(idx)
+        return deadPixels
+
+    def deadString(self,string, j):
+        if string[j+1] == 'J':
+            if string[j-self.cols] == 'X' and string[j + 1-self.cols] == 'X' or string[j+self.cols] == 'X' and string[j + 1+ self.cols] == 'X':
+                return True
+        elif string[j-1] == 'J':
+            if string[j - self.cols] == 'X' and string[j - 1 - self.cols] == 'X' or string[j + self.cols] == 'X' and string[j - 1 + self.cols] == 'X':
+                return True
+
+        if string[j - self.cols] == 'J':
+            if string[j - 1] == 'X' and string[j - self.cols - 1] == 'X' or string[j + 1] == 'X' and \
+                    string[j - self.cols + 1] == 'X':
+                return True
+        elif string[j + self.cols] == 'J':
+            if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and \
+                    string[j + self.cols + 1] == 'X':
+                return True
 
 
     def test(self):
@@ -118,35 +166,48 @@ class sokobanSolver():
             self.print_map(stt)
 
     def isdead(self,node):
-        dead = False
         for idx, c in enumerate(node.state):
             if c == 'J':
-                if node.state[idx - 1] == 'X':
-                    if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
-                        dead = True
-                        for g in self.goalpos:
-                            if idx == g:
-                                dead = False
-                                break
-                        if dead:
-                            return True
-                elif node.state[idx + 1] == 'X':
-                    if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
-                        dead = True
-                        for g in self.goalpos:
-                            if idx == g:
-                                dead = False
-                                break
-                        if dead:
-                            return True
-        return dead
+                for pix in self.deadPixel:
+                    if idx == pix:
+                        return True
+        return False
+
+        # dead = False
+        # for idx, c in enumerate(node.state):
+        #     if c == 'J':
+        #         if node.state[idx - 1] == 'X':
+        #             if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
+        #                 dead = True
+        #                 for g in self.goalpos:
+        #                     if idx == g:
+        #                         dead = False
+        #                         break
+        #                 if dead:
+        #                     del node
+        #                     return True
+        #         elif node.state[idx + 1] == 'X':
+        #             if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
+        #                 dead = True
+        #                 for g in self.goalpos:
+        #                     if idx == g:
+        #                         dead = False
+        #                         break
+        #                 if dead:
+        #                     del node
+        #                     return True
+        # return dead
 
     def stateCheck(self,node):
         temp = node.parent
+        i = 0
         while not temp == None:
+            i = i + 1
             if temp.state == node.state:
+                del node
                 return False
             temp = temp.parent
+        #print(i, " - many layers")
         return True
 
     def printSolution(self,node):
@@ -177,17 +238,23 @@ class sokobanSolver():
 
 
     def solve(self):
-        for n in self.TreeOfStates:
+        #for n in self.TreeOfStates:
+        i = 0
+        while not self.TreeOfStates[0] == None:
+            n = self.TreeOfStates.pop(0)
+           # print(len(self.TreeOfStates), "\n")
            # print("Parent:")
             #self.print_map(n.parent)
            # print(" current:")
-            #self.print_map(n)
+            if i%100 == 0:
+                self.print_map(n)
             if(self.goal_check(n)):
                 print(self.printSolution(n))
                 self.print_map(n)
                 break
-            elif not self.isdead(n) and self.stateCheck(n):
+            elif not(self.isdead(n)) and self.stateCheck(n):
                 self.get_available_states(n)
+                i = i + 1
 
         #print("Couldn't solve map")
 
