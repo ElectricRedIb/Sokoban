@@ -1,4 +1,5 @@
 import sys
+import heapq
 
 class Node():
     def __init__(self,parent,state,pos, heu):
@@ -18,7 +19,8 @@ class Node():
         if self.parent == None:
             self.step = 0
         else: self.step = self.parent.step + 1
-
+    def __lt__(self, other):
+        return self.heu < other.heu
 
 
 
@@ -112,17 +114,20 @@ class sokobanSolver():
                     #self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
     def print_map(self, node):
-        print("\n")
+        printstring = "\n"
         if node == None:
             return
         i = 0
         for c in node.state:
-            sys.stdout.write(c+"\t")
+            printstring += c
+            printstring += "\t"
             i += 1
             if i > self.cols - 1:
                 i = 0
-                print("\n")
-        print("\n")
+                printstring += "\n"
+        printstring += "\n"
+        print(printstring)
+
 
     def zombiePix(self,string):
         deadPixels = []
@@ -206,11 +211,12 @@ class sokobanSolver():
 
     def inputNode(self,node,string,pos):
         heu = self.getHeuristic(string,node.step,pos)
-        for idx , n in enumerate(self.TreeOfStates):
-            if heu < n.heu:
-                self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
-                return
-        self.TreeOfStates.append(node.makeChild(string,pos,heu + node.step))
+        heapq.heappush(self.TreeOfStates,node.makeChild(string,pos,heu))
+        # for idx , n in enumerate(self.TreeOfStates):
+        #     if heu < n.heu:
+        #         self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
+        #         return
+        # self.TreeOfStates.append(node.makeChild(string,pos,heu + node.step))
 
     def test(self):
         for idx, c in enumerate(self.TreeOfStates[0].state):
@@ -304,7 +310,7 @@ class sokobanSolver():
         #for n in self.TreeOfStates:
         i = 0
         while not self.TreeOfStates[0] == None:
-            n = self.TreeOfStates.pop(0)
+            n = heapq.heappop(self.TreeOfStates)
            # print(len(self.TreeOfStates), "\n")
            # print("Parent:")
             #self.print_map(n.parent)
