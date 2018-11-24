@@ -15,6 +15,10 @@ class Node():
         return child
 
 
+
+
+
+
 class sokobanSolver():
     def __init__(self):
         self.TreeOfStates = []
@@ -30,7 +34,7 @@ class sokobanSolver():
 
         for idx, c in enumerate(map):
             if c == 'M':
-                startNode = Node(None, map, idx,0)
+                startNode = Node(None, map, idx, 99)
 
         #startNode = Node(None, map)
         cols, rows, jewels = setting.split()
@@ -66,28 +70,28 @@ class sokobanSolver():
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
                             string = state[:pos] + '.' + state[pos+ 1:x] + 'M' + state[x+1:x+self.cols] + 'J' + state[x+self.cols+1:]
                             if not self.deadString(string,x+self.cols):
-                                self.inputNode(node,string,x+self.cols)
+                                self.inputNode(node,string,tempPos[idx])
                                 #self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 1:
                         if state[x +1] == '.' or state[x +1] == 'G':
                             string = state[:x - 1] + '.MJ' + state[x+2:]
                             if not self.deadString(string, x + 1):
-                                self.inputNode(node, string, x + 1)
+                                self.inputNode(node, string, tempPos[idx])
                                # self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 2:
                         if state[x - self.cols] == '.' or state[x - self.cols] == 'G':
-                            string = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
+                            string  = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
                             if not self.deadString(string, x - self.cols):
-                                self.inputNode(node, string, x - self.cols)
+                                self.inputNode(node, string, tempPos[idx])
                                # self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 3:
                         if state[x - 1] == '.' or state[x - 1] == 'G':
                             string = state[:x - 1] +'JM.' + state[x + 2:]
                             if not self.deadString(string, x - 1):
-                                self.inputNode(node, string, x - 1)
+                                self.inputNode(node, string, tempPos[idx])
                                 #self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                 elif state[x] == '.' or state[x] == 'G':
@@ -158,23 +162,54 @@ class sokobanSolver():
             if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and string[j + self.cols + 1] == 'X':
                 return True
 
-    def calcManhatten(self,string):
+        return False
+
+    def calcManhatten(self, pos1, pos2):
+        xdif = abs((pos1 % self.cols) - (pos2 % self.cols))
+        ydif = abs(int(pos1 / self.cols) - int(pos2 / self.cols))
+        return xdif + ydif
+
+    def getHeuristic(self, string):
         dist = 0
-        for g in self.goalpos:
-            for idx, c in enumerate(string):
-                if c == 'J':
-                    return idx
-        return 0
+        tempcandist = 99
+        tempgoaldist = 99
+        robPos = 0
+        tempdist = 0
+
+        #Get robot position
+        for idx, c in enumerate(string):
+            if c == "M":
+                robPos = idx
+
+        #Get manhatten distance from robot to nearest gem:
+        for idx, c in enumerate(string):
+            if c == "J":
+                tempdist = self.calcManhatten(robPos, idx)
+                if  tempdist < tempcandist:
+                    tempcandist = tempdist
+        #print("Dist from robot to can: " + str(tempcandist))
+        dist = tempcandist
+
+        #Find manhatten distance between any can and nearest goal
+        for idx, c in enumerate(string):
+            if c == "J":
+                for i in range(0, self.jewels):
+                    tempdist = self.calcManhatten(idx, self.goalpos[i])
+                    if tempdist < tempgoaldist:
+                        tempgoaldist = tempdist
+                #print("Distance from can to goal: " + str(tempgoaldist))
+                dist += tempgoaldist
+                tempgoaldist = 99
+
+        return dist
 
     def inputNode(self,node,string,pos):
-        heu = calcManhatten(string)
+        heu = self.getHeuristic(string)
         for idx , n in enumerate(self.TreeOfStates):
             if heu <= n.heu:
                 self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
                 return
         self.TreeOfStates.append(node.makeChild(string,pos,heu))
-
-
 
     def test(self):
         for idx, c in enumerate(self.TreeOfStates[0].state):
