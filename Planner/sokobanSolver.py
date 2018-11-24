@@ -1,21 +1,18 @@
 import sys
 
 class Node():
-    def __init__(self,parent,state,pos):
+    def __init__(self,parent,state,pos, heu):
         self.parent = parent
         self.state = state
         self.children = []
         self.pos = pos
+        self.heu = heu
         #self.children = [node(self),node(self)]
 
-    def makeChild(self,state, pos):
-        child = Node(self, state,pos)
+    def makeChild(self,state, pos, heu):
+        child = Node(self, state,pos, heu)
         self.children.append(child)
         return child
-
-
-
-
 
 
 class sokobanSolver():
@@ -33,7 +30,7 @@ class sokobanSolver():
 
         for idx, c in enumerate(map):
             if c == 'M':
-                startNode = Node(None, map, idx)
+                startNode = Node(None, map, idx,0)
 
         #startNode = Node(None, map)
         cols, rows, jewels = setting.split()
@@ -69,25 +66,29 @@ class sokobanSolver():
                         if state[x + self.cols] == '.' or state[x + self.cols] == 'G':
                             string = state[:pos] + '.' + state[pos+ 1:x] + 'M' + state[x+1:x+self.cols] + 'J' + state[x+self.cols+1:]
                             if not self.deadString(string,x+self.cols):
-                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
+                                self.inputNode(node,string,x+self.cols)
+                                #self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 1:
                         if state[x +1] == '.' or state[x +1] == 'G':
                             string = state[:x - 1] + '.MJ' + state[x+2:]
                             if not self.deadString(string, x + 1):
-                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
+                                self.inputNode(node, string, x + 1)
+                               # self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 2:
                         if state[x - self.cols] == '.' or state[x - self.cols] == 'G':
-                            string  = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
+                            string = state[:x - self.cols] + "J" + state[x - self.cols + 1:x] + 'M' + state[x + 1:pos] + '.' + state[pos + 1:]
                             if not self.deadString(string, x - self.cols):
-                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
+                                self.inputNode(node, string, x - self.cols)
+                               # self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                     elif idx == 3:
                         if state[x - 1] == '.' or state[x - 1] == 'G':
                             string = state[:x - 1] +'JM.' + state[x + 2:]
                             if not self.deadString(string, x - 1):
-                                self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
+                                self.inputNode(node, string, x - 1)
+                                #self.TreeOfStates.insert(0,node.makeChild(string,tempPos[idx]))
 
                 elif state[x] == '.' or state[x] == 'G':
                     if idx == 0:
@@ -98,7 +99,8 @@ class sokobanSolver():
                         string = state[:x] + 'M' + state[x + 1:pos] + '.' + state[pos+1:]
                     elif idx == 3:
                         string = state[:x] + 'M.' + state[pos+1:]
-                    self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
+                    self.inputNode(node, string, tempPos[idx])
+                    #self.TreeOfStates.append(node.makeChild(string,tempPos[idx]))
 
     def print_map(self, node):
         print("\n")
@@ -150,19 +152,27 @@ class sokobanSolver():
                 return True
 
         if string[j - self.cols] == 'J':
-            if string[j - 1] == 'X' and string[j - self.cols - 1] == 'X' or string[j + 1] == 'X' and \
-                    string[j - self.cols + 1] == 'X':
+            if string[j - 1] == 'X' and string[j - self.cols - 1] == 'X' or string[j + 1] == 'X' and string[j - self.cols + 1] == 'X':
                 return True
         elif string[j + self.cols] == 'J':
-            if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and \
-                    string[j + self.cols + 1] == 'X':
+            if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and string[j + self.cols + 1] == 'X':
                 return True
 
     def calcManhatten(self,string):
         dist = 0
         for g in self.goalpos:
             for idx, c in enumerate(string):
-                if c == 'J' and :
+                if c == 'J':
+                    return idx
+        return 0
+
+    def inputNode(self,node,string,pos):
+        heu = calcManhatten(string)
+        for idx , n in enumerate(self.TreeOfStates):
+            if heu <= n.heu:
+                self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
+                return
+        self.TreeOfStates.append(node.makeChild(string,pos,heu))
 
 
 
