@@ -158,21 +158,49 @@ class sokobanSolver():
                     string[j + self.cols + 1] == 'X':
                 return True
 
-    def calcManhatten(self,string):
-        dist = 0
-        for g in self.goalpos:
-            for idx, c in enumerate(string):
-                if c == 'J' and :
+    def calcManhatten(self, pos1, pos2):
+        xdif = abs((pos1 % self.cols) - (pos2 % self.cols))
+        ydif = abs(int(pos1 / self.cols) - int(pos2 / self.cols))
+        return xdif + ydif
 
+    def getHeuristic(self, string):
+        dist = 0
+        tempcandist = 99
+        tempgoaldist = 99
+        robPos = 0
+        tempdist = 0
+
+        #Get robot position
+        for idx, c in enumerate(string):
+            if c == "M":
+                robPos = idx
+
+        #Get manhatten distance from robot to nearest gem:
+        for idx, c in enumerate(string):
+            if c == "J":
+                tempdist = self.calcManhatten(robPos, idx)
+                if  tempdist < tempcandist:
+                    tempcandist = tempdist
+        #print("Dist from robot to can: " + str(tempcandist))
+        dist = tempcandist
+
+        #Find manhatten distance between any can and nearest goal
+        for idx, c in enumerate(string):
+            if c == "J":
+                for i in range(0, self.jewels):
+                    tempdist = self.calcManhatten(idx, self.goalpos[i])
+                    if tempdist < tempgoaldist:
+                        tempgoaldist = tempdist
+                #print("Distance from can to goal: " + str(tempgoaldist))
+                dist += tempgoaldist
+                tempgoaldist = 99
+
+        return dist
 
 
     def test(self):
-        for idx, c in enumerate(self.TreeOfStates[0].state):
-            if c == 'M':
-                self.get_available_states(self.TreeOfStates[0])
-
-        for stt in self.TreeOfStates:
-            self.print_map(stt)
+        print(self.getHeuristic(self.TreeOfStates[0].state))
+        self.print_map(self.TreeOfStates[0])
 
     def isdead(self,node):
         for idx, c in enumerate(node.state):
@@ -256,6 +284,7 @@ class sokobanSolver():
             #self.print_map(n.parent)
            # print(" current:")
             if i%100 == 0:
+                print(self.getHeuristic(n.state))
                 self.print_map(n)
             if(self.goal_check(n)):
                 print(self.printSolution(n))
