@@ -62,11 +62,51 @@ class sokobanSolver():
         print(self.deadPixel)
         print(self.goalpos)
 
+        self.heuristics = self.heuristicsMap(map)
+
     def goal_check(self, node):
         for pos in self.goalpos:
             if node.state[pos] != 'J':
                 return False
         return True
+    def heuristicsMap(self,string):
+        heuMap = []
+        for idx,c in enumerate(string):
+            if c == 'X':
+                heuMap.append(-1)
+            elif c == 'G':
+                heuMap.append(0)
+            else:
+                heuMap.append(self.getHeur(idx,string))
+                print(heuMap)
+        return heuMap
+
+
+    def getHeur(self,pos,string):
+        openlist = [(pos,0)]
+        closedlist = []
+
+        heuristic = 0
+
+        while len(openlist) > 0:
+            restart = False
+            idx = openlist.pop(0)
+            for c in closedlist:
+                if idx[0] == c:
+                    #print(idx, " TRUE ", len(openlist))
+                    restart = True
+            if not restart:
+                if self.isAGoal(idx[0]):
+                    return idx[1]
+                else:
+                    #print(idx, " - ")
+                    tempPos = [idx[0] + self.cols, idx[0] + 1, idx[0] - self.cols, idx[0] - 1]
+                    for x in tempPos:
+                            if string[x] != 'X':
+                                tup = (x,idx[1]+1)
+                                openlist.append(tup)
+                    closedlist.append(idx[0])
+
 
     def get_available_states(self, node):
         node.stepped()
@@ -171,6 +211,7 @@ class sokobanSolver():
         return deadPixels
 
     def deadString(self,string, j):
+        string
         #if not string[j] == 'J' :
          #   print("You Fucked Up")
         if string[j+1] == 'J':
@@ -188,7 +229,73 @@ class sokobanSolver():
                 return True
 
 
+        return False#self.checkPosMoves(string,j)
+
+    def checkPosMoves(self,string,j):
+        availMoves = []
+        tempPos = [j + self.cols, j + 1, j - self.cols, j - 1]
+        for idx, x in enumerate(tempPos):
+            if self.isClear(string, x) and self.isClear(string,tempPos[(idx+2)%4]): #or self.isAGoal(x):
+                availMoves.append(x)
+        if len(availMoves) > 2:
+            return True
+        elif len(availMoves) == 0:
+            return False
+        else:
+            for x in availMoves:
+                if string[x] != 'M' and self.isDeadPixel(x):
+                    return True
+                    #if not(self.isClear(string,x-self.cols) and self.isClear(string,j-self.cols) or string[x + self.cols] != 'X' and string[j+self.cols] != 'X'):
+            return False
+
+    def deadPixelDead(self,string):
+        for idx in self.deadPixel:
+            tempPos = [idx + self.cols, idx + 1, idx - self.cols, idx - 1]
+            count = 0
+            for x in range(0, 4):
+                if self.isClear(string,tempPos[x]):
+                    if self.isDeadPixel(tempPos[x]):
+                        if not self.clearPerimeter(string,tempPos[x]):
+                            return True
         return False
+
+
+
+
+    def clearPerimeter(self,string,idx):
+        tempPos = [idx + self.cols, idx + 1, idx - self.cols, idx - 1]
+        for x in range(0, 4):
+            if self.isClear(string, tempPos[x]) and not self.isDeadPixel(tempPos[x]):
+                return True
+        return False
+
+    def isClear(self,string,idx):
+        if string[idx] == 'X' or string[idx] == 'J':
+            return False
+        return True
+
+    def isDeadPixel(self,pix):
+        for x in self.deadPixel:
+            if pix == x:
+                return True
+        return False
+
+    def isAGoal(self,pix):
+        for x in self.goalpos:
+            if pix == x:
+                return True
+        return False
+    # def circleDeadlock(self,j,idx, dir,string):
+    #     if idx == j:
+    #         return True
+    #
+    #     if int(idx/self.cols) == 0 and dir == 0:     #first row
+    #         dir = 2
+    #     elif idx%self.cols == 0 and dir == :        #first col
+    #         dir =
+    #     elif dir == 0:  # up
+    #         if string[idx - self.cols] == X:
+
 
     def calcManhatten(self, pos1, pos2):
         xdif = abs((pos1 % self.cols) - (pos2 % self.cols))
@@ -198,48 +305,57 @@ class sokobanSolver():
     def getHeuristic(self, string, step, robPos):
         dist = 0
         tempcandist = 99
-        tempgoaldist = 99
+        tempgoaldist = 0
         tempdist = 0
 
         #Get manhatten distance from robot to nearest gem:
         for idx, c in enumerate(string):
-            if c == "J" and not(self.goalpos[0] == idx or self.goalpos[1] == idx or self.goalpos[2] == idx or self.goalpos[3] == idx):
-                tempdist = self.calcManhatten(robPos, idx)
-                if  tempdist < tempcandist:
-                    tempcandist = tempdist
+             if c == "J" and not(self.goalpos[0] == idx or self.goalpos[1] == idx or self.goalpos[2] == idx or self.goalpos[3] == idx):
+                 tempdist = self.calcManhatten(robPos, idx)
+                 if  tempdist < tempcandist:
+                     tempcandist = tempdist
         #print("Dist from robot to can: " + str(tempcandist))
         dist = tempcandist
 
         #Find manhatten distance between any can and nearest goal
         for idx, c in enumerate(string):
-            if c == "J" and not(self.goalpos[0] == idx or self.goalpos[1] == idx or self.goalpos[2] == idx or self.goalpos[3] == idx):
+            if c == "J" and not self.isAGoal(idx):
                 for i in range(0, self.jewels):
                     tempdist = self.calcManhatten(idx, self.goalpos[i])
-                    if tempdist < tempgoaldist:
+                    if tempdist > tempgoaldist:
                         tempgoaldist = tempdist
                 #print("Distance from can to goal: " + str(tempgoaldist))
                 dist += tempgoaldist
-                tempgoaldist = 99
+                tempgoaldist = 0
 
         goaldist = self.goalCount(string)
-        return (dist * goaldist) + step
+        return (dist + step)*goaldist
+
 
     def inputNode(self,node,string,pos):
-        heu = self.getHeuristic(string,node.step,pos)
-        heapq.heappush(self.TreeOfStates,node.makeChild(string,pos,heu))
+
+        tempcandist = 99
+        tempgoaldist = 99
+        for idx, c in enumerate(string):
+             if c == "J" and not self.isAGoal(idx):
+                 tempdist = self.calcManhatten(pos, idx)
+                 if  tempdist < tempcandist:
+                     tempcandist = tempdist
+        #print("Dist from robot to can: " + str(tempcandist))
+        dist = tempcandist
+
+        heu = 0
+        for idx, c in enumerate(string):
+            if c == "J" and not self.isAGoal(idx):
+                heu += (self.heuristics[idx] * self.goalCount(string)) + dist
+                heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu+node.step))
+        #heu = self.getHeuristic(string,node.step,pos)
+        #heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu))
         # for idx , n in enumerate(self.TreeOfStates):
         #     if heu < n.heu:
         #         self.TreeOfStates.insert(idx,node.makeChild(string,pos,heu))
         #         return
         # self.TreeOfStates.append(node.makeChild(string,pos,heu + node.step))
-
-    def test(self):
-        for idx, c in enumerate(self.TreeOfStates[0].state):
-            if c == 'M':
-                self.get_available_states(self.TreeOfStates[0])
-
-        for stt in self.TreeOfStates:
-            self.print_map(stt)
 
     def isdead(self,node):
         for idx, c in enumerate(node.state):
@@ -247,32 +363,7 @@ class sokobanSolver():
                 for pix in self.deadPixel:
                     if idx == pix:
                         return True
-        return False
-
-        # dead = False
-        # for idx, c in enumerate(node.state):
-        #     if c == 'J':
-        #         if node.state[idx - 1] == 'X':
-        #             if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
-        #                 dead = True
-        #                 for g in self.goalpos:
-        #                     if idx == g:
-        #                         dead = False
-        #                         break
-        #                 if dead:
-        #                     del node
-        #                     return True
-        #         elif node.state[idx + 1] == 'X':
-        #             if node.state[idx + self.cols] == 'X' or node.state[idx - self.cols] == 'X':
-        #                 dead = True
-        #                 for g in self.goalpos:
-        #                     if idx == g:
-        #                         dead = False
-        #                         break
-        #                 if dead:
-        #                     del node
-        #                     return True
-        # return dead
+        return False#self.deadPixelDead(node.state)
 
     def stateCheck(self,node):
         temp = node.parent
