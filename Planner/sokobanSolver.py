@@ -103,7 +103,6 @@ class sokobanSolver():
         closedlist = []
 
         heuristic = 0
-
         while len(openlist) > 0:
             restart = False
             idx = openlist.pop(0)
@@ -122,6 +121,32 @@ class sokobanSolver():
                                 tup = (x,idx[1]+1)
                                 openlist.append(tup)
                     closedlist.append(idx[0])
+
+    def getHeurToJ(self,pos, j,string):
+        openlist = [(pos,0)]
+        closedlist = []
+
+        heuristic = 0
+
+        while len(openlist) > 0:
+            restart = False
+            idx = openlist.pop(0)
+            for c in closedlist:
+                if idx[0] == c:
+                    #print(idx, " TRUE ", len(openlist))
+                    restart = True
+            if not restart:
+                if idx[0] == j:
+                    return idx[1]
+                else:
+                    #print(idx, " - ")
+                    tempPos = [idx[0] + self.cols, idx[0] + 1, idx[0] - self.cols, idx[0] - 1]
+                    for x in tempPos:
+                            if string[x] != 'X':
+                                tup = (x,idx[1]+1)
+                                openlist.append(tup)
+                    closedlist.append(idx[0])
+
     def getPyth(self,pos):
         retDist = 999
         for g in self.goalpos:
@@ -265,7 +290,6 @@ class sokobanSolver():
         return deadPixels
 
     def deadString(self,string, j):
-        string
         #if not string[j] == 'J' :
          #   print("You Fucked Up")
         if string[j+1] == 'J':
@@ -407,13 +431,14 @@ class sokobanSolver():
                     tempidx = idx
                     tempcandist = tempdist
          #print("Dist from robot to can: " + str(tempcandist))
-        dist = self.calcManhatten(tempidx,pos)
+        #dist = self.calcManhatten(tempidx,pos)
+        dist = self.getHeurToJ(pos,tempidx,string)
 
         heu = 0
         for idx, c in enumerate(string):
             if c == "J" and not self.isAGoal(idx):
-                heu += (math.pow(self.getPythToGoal(idx,string),1) * dist)
-        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu + node.step)*self.goalCount(string)))
+                heu += (math.pow(self.getPythToGoal(idx,string),1) + dist)
+        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu*2 + node.step)*self.goalCount(string)))
         #heu = self.getHeuristic(string,node.step,pos)
         #heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu))
         # for idx , n in enumerate(self.TreeOfStates):
@@ -446,8 +471,8 @@ class sokobanSolver():
                          if self.availableMoves(node.state,x):
                              temp +=1
                      if temp == 0:
-                         self.print_map(node)
-                         print(g, ": ", tempPos)
+                         #self.print_map(node)
+                         #print(g, ": ", tempPos)
                          return True
         return False
 
@@ -519,7 +544,7 @@ class sokobanSolver():
            # print(len(self.TreeOfStates), "\n")
            # print("Parent:")
             #self.print_map(n.parent)
-           # print(" current:")
+            #print(" current:")
             if i%1000 == 0:
                 self.print_map(n)
                 print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
