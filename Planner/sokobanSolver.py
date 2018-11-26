@@ -1,5 +1,6 @@
 import sys
 import heapq
+import math
 
 class Node():
     def __init__(self,parent,state,pos, heu):
@@ -23,7 +24,7 @@ class Node():
         self.step = self.step + 1
 
     def __lt__(self, other):
-        return self.heu < other.heu
+        return self.heu <= other.heu
 
 
 
@@ -62,13 +63,28 @@ class sokobanSolver():
         print(self.deadPixel)
         print(self.goalpos)
 
+        self.pyth = self.pythoMap(map)
         self.heuristics = self.heuristicsMap(map)
+        self.print_maplist(self.heuristics)
+        self.print_maplist(self.pyth)
 
     def goal_check(self, node):
         for pos in self.goalpos:
             if node.state[pos] != 'J':
                 return False
         return True
+
+    def pythoMap(self,string):
+        heuMap = []
+        for idx,c in enumerate(string):
+            if c == 'X':
+                heuMap.append(-1)
+            elif c == 'G':
+                heuMap.append(0)
+            else:
+                heuMap.append(self.getPyth(idx))
+               # print(heuMap)
+        return heuMap
     def heuristicsMap(self,string):
         heuMap = []
         for idx,c in enumerate(string):
@@ -78,11 +94,11 @@ class sokobanSolver():
                 heuMap.append(0)
             else:
                 heuMap.append(self.getHeur(idx,string))
-                print(heuMap)
+               # print(heuMap)
         return heuMap
 
 
-    def getHeur(self,pos,string):
+    def getHeur(self,pos ,string):
         openlist = [(pos,0)]
         closedlist = []
 
@@ -106,6 +122,31 @@ class sokobanSolver():
                                 tup = (x,idx[1]+1)
                                 openlist.append(tup)
                     closedlist.append(idx[0])
+    def getPyth(self,pos):
+        retDist = 999
+        for g in self.goalpos:
+            x1 = pos % self.cols
+            y1 = int(pos / self.cols)
+            x2 = g % self.cols
+            y2 = int(g / self.cols)
+            temp = math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+            if temp < retDist:
+                retDist = temp
+        return int(retDist)
+
+    def getPythToGoal(self,pos,string):
+        retDist = 999
+        for g in self.goalpos:
+            if string[g] != 'J':
+                x1 = pos % self.cols
+                y1 = int(pos / self.cols)
+                x2 = g % self.cols
+                y2 = int(g / self.cols)
+                temp = math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+                if temp < retDist:
+                    retDist = temp
+        return int(retDist)
+
 
 
     def get_available_states(self, node):
@@ -171,6 +212,19 @@ class sokobanSolver():
         printstring += "\n"
         print(printstring)
 
+    def print_maplist(self, list):
+        printstring = "\n"
+        i = 0
+        for c in list:
+            printstring += str(c)
+            printstring += "\t"
+            i += 1
+            if i > self.cols - 1:
+                i = 0
+                printstring += "\n"
+        printstring += "\n"
+        print(printstring)
+
 
     def zombiePix(self,string):
         deadPixels = []
@@ -228,6 +282,16 @@ class sokobanSolver():
             if string[j - 1] == 'X' and string[j + self.cols - 1] == 'X' or string[j + 1] == 'X' and string[j + self.cols + 1] == 'X':
                 return True
 
+        # availMoves = []
+        # for g in self.goalpos:
+        #     if string[g] != 'J':
+        #         tempPos = [g + self.cols, g + 1, g - self.cols, g - 1]
+        #         for idx in tempPos:
+        #             if string[idx] != 'X':
+        #                 if self.isClear(string, g - 2*(g-idx)):
+        #                     availMoves.append(idx)
+        # if len(availMoves) < 1:
+        #     return True
 
         return False#self.checkPosMoves(string,j)
 
@@ -335,20 +399,21 @@ class sokobanSolver():
     def inputNode(self,node,string,pos):
 
         tempcandist = 99
-        tempgoaldist = 99
+        tempidx = 99
         for idx, c in enumerate(string):
-             if c == "J" and not self.isAGoal(idx):
-                 tempdist = self.calcManhatten(pos, idx)
-                 if  tempdist < tempcandist:
-                     tempcandist = tempdist
-        #print("Dist from robot to can: " + str(tempcandist))
-        dist = tempcandist
+            if c == "J" and not self.isAGoal(idx):
+                tempdist = self.heuristics[idx]
+                if tempdist < tempcandist:
+                    tempidx = idx
+                    tempcandist = tempdist
+         #print("Dist from robot to can: " + str(tempcandist))
+        dist = self.calcManhatten(tempidx,pos)
 
         heu = 0
         for idx, c in enumerate(string):
             if c == "J" and not self.isAGoal(idx):
-                heu += (self.heuristics[idx] * self.goalCount(string)) + dist
-                heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu+node.step))
+                heu += (math.pow(self.getPythToGoal(idx,string),1) * dist)
+        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu + node.step)*self.goalCount(string)))
         #heu = self.getHeuristic(string,node.step,pos)
         #heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu))
         # for idx , n in enumerate(self.TreeOfStates):
@@ -363,7 +428,41 @@ class sokobanSolver():
                 for pix in self.deadPixel:
                     if idx == pix:
                         return True
-        return False#self.deadPixelDead(node.state)
+
+        for g in self.goalpos:
+             availMoves = []
+             temp = True
+             if node.state[g] != 'J':
+                 tempPos = [g + self.cols, g + 1, g - self.cols, g - 1]
+                 for idx in tempPos:
+                     if node.state[idx] != 'X':
+                         availMoves.append(idx)
+                         #if self.isClear(node.state, g - 2 * (g - idx)):
+                 if len(availMoves) < 1:
+                     return True
+                 else:
+                     temp = 0
+                     for x in availMoves:
+                         if self.availableMoves(node.state,x):
+                             temp +=1
+                     if temp == 0:
+                         self.print_map(node)
+                         print(g, ": ", tempPos)
+                         return True
+        return False
+
+    def availableMoves(self,string,idx):                # if available move return true else
+       # availMoves = []
+        tempPos = [idx + self.cols, idx + 1, idx - self.cols, idx - 1]
+        for x in range(0,4):
+            temp = False
+            if string[tempPos[x]] != 'X' and string[tempPos[(x+2)%4]] != 'X':
+                if self.isClear(string, tempPos[x]) and self.isClear(string,tempPos[(x+2)%4]):
+                    return True
+                elif string[tempPos[x]] == 'J':
+                    if self.availableMoves(string,tempPos[x]):
+                        return True
+        return False
 
     def stateCheck(self,node):
         temp = node.parent
@@ -423,10 +522,11 @@ class sokobanSolver():
            # print(" current:")
             if i%1000 == 0:
                 self.print_map(n)
-                print(n.heu, " - ", n.step)
+                print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
             if(self.goal_check(n)):
-                print(self.printSolution(n))
+                self.printSolution(n)
                 self.print_map(n)
+                print(n.step, " : ", self.Solution(n))
                 break
             elif not(self.isdead(n)) and self.stateCheck(n):
                 self.get_available_states(n)
