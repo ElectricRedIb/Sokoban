@@ -435,10 +435,12 @@ class sokobanSolver():
         dist = self.getHeurToJ(pos,tempidx,string)
 
         heu = 0
+        count = 0
         for idx, c in enumerate(string):
             if c == "J" and not self.isAGoal(idx):
-                heu += (math.pow(self.getPythToGoal(idx,string),1) + dist)
-        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu*2 + node.step)*self.goalCount(string)))
+                heu += (math.pow(self.getPythToGoal(idx,string)+ dist,2) )
+                count += 1
+        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu + node.step)*self.goalCount(string)))
         #heu = self.getHeuristic(string,node.step,pos)
         #heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu))
         # for idx , n in enumerate(self.TreeOfStates):
