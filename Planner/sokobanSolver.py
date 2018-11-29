@@ -26,6 +26,9 @@ class Node():
     def __lt__(self, other):
         return self.heu <= other.heu
 
+    def __cmp__(self, other):
+        return self.state == other.state
+
 
 
 
@@ -431,16 +434,16 @@ class sokobanSolver():
                     tempidx = idx
                     tempcandist = tempdist
          #print("Dist from robot to can: " + str(tempcandist))
-        #dist = self.calcManhatten(tempidx,pos)
-        dist = self.getHeurToJ(pos,tempidx,string)
+        dist = self.calcManhatten(tempidx,pos)
+        #dist = self.getHeurToJ(pos,tempidx,string)
+
 
         heu = 0
         count = 0
         for idx, c in enumerate(string):
             if c == "J" and not self.isAGoal(idx):
-                heu += (math.pow(self.getPythToGoal(idx,string)+ dist,2) )
-                count += 1
-        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu + node.step)*self.goalCount(string)))
+                heu += (math.pow(self.getPythToGoal(idx,string),1))
+        heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, (heu + node.step + dist)))
         #heu = self.getHeuristic(string,node.step,pos)
         #heapq.heappush(self.TreeOfStates, node.makeChild(string, pos, heu))
         # for idx , n in enumerate(self.TreeOfStates):
@@ -470,7 +473,7 @@ class sokobanSolver():
                  else:
                      temp = 0
                      for x in availMoves:
-                         if self.availableMoves(node.state,x):
+                         if self.availableMoves(node.state,x, 0):
                              temp +=1
                      if temp == 0:
                          #self.print_map(node)
@@ -478,7 +481,7 @@ class sokobanSolver():
                          return True
         return False
 
-    def availableMoves(self,string,idx):                # if available move return true else
+    def availableMoves(self,string,idx, j):                # if available move return true else
        # availMoves = []
         tempPos = [idx + self.cols, idx + 1, idx - self.cols, idx - 1]
         for x in range(0,4):
@@ -486,8 +489,8 @@ class sokobanSolver():
             if string[tempPos[x]] != 'X' and string[tempPos[(x+2)%4]] != 'X':
                 if self.isClear(string, tempPos[x]) and self.isClear(string,tempPos[(x+2)%4]):
                     return True
-                elif string[tempPos[x]] == 'J':
-                    if self.availableMoves(string,tempPos[x]):
+                elif string[tempPos[x]] == 'J' and tempPos[x] != j:
+                    if self.availableMoves(string,tempPos[x],idx):
                         return True
         return False
 
@@ -501,6 +504,12 @@ class sokobanSolver():
                 return False
             temp = temp.parent
         #print(i, " - many layers")
+        return True
+
+    def stateCheckList(self, node,list):
+        for n in list:
+            if node.state == n:
+                return False
         return True
 
     def goalCount(self, string):
@@ -540,24 +549,23 @@ class sokobanSolver():
 
     def solve(self):
         #for n in self.TreeOfStates:
+        closedList = {}
         i = 0
         while not self.TreeOfStates[0] == None:
             n = heapq.heappop(self.TreeOfStates)
-           # print(len(self.TreeOfStates), "\n")
-           # print("Parent:")
-            #self.print_map(n.parent)
-            #print(" current:")
-            if i%1000 == 0:
-                self.print_map(n)
-                print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
-            if(self.goal_check(n)):
-                self.printSolution(n)
-                self.print_map(n)
-                print(n.step, " : ", self.Solution(n))
-                break
-            elif not(self.isdead(n)) and self.stateCheck(n):
-                self.get_available_states(n)
-                i = i + 1
+            if not n.state in closedList:
+                if i%1000 == 0:
+                    self.print_map(n)
+                    print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
+                if(self.goal_check(n)):
+                    self.printSolution(n)
+                    self.print_map(n)
+                    print(n.step, " : ", self.Solution(n))
+                    break
+                elif not(self.isdead(n)) :#and self.stateCheckList(n, closedList):
+                    self.get_available_states(n)
+                    closedList[n.state] = 1
+                    i = i + 1
 
         #print("Couldn't solve map")
 
