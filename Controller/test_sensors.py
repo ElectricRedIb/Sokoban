@@ -4,8 +4,7 @@ import controller
 import motors
 import signal
 from time import sleep
-
-
+from datetime import datetime as dt
 #exit control
 def signal_handler(sig, frame):
 	print('Shutting down gracefully')
@@ -71,7 +70,10 @@ if filename == "map": # only for cosmetics
 else:
 	print("\n------------------------ Run the robot! -----------------------\n")
 pointer = 0
+startTime = dt.now()
 while not complete:
+	if pointer%10:
+		controller.batteryState()
 	state = DOTHIS[pointer].action
 	stateRepeate = DOTHIS[pointer].repeateAction
 	print(state, end='')
@@ -104,4 +106,6 @@ while not complete:
 			complete = True
 
 motors.stopMotors()
-print("\n\n------------------------ Program ended ------------------------\n")
+endTime = dt.now()
+
+print("\n\n------------------------ The End " + str(endTime.minute - startTime.minute) + ":" + str(abs(endTime.second - startTime.second)) + "------------------------\n")
