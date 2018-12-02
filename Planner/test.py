@@ -26,7 +26,7 @@ solution = "LDLLLUUUURRDRUUURULDDDLLLDDRULURRLDDLDDRUUURRUUUULLULDRRDRDDLDLLURRD
 glueSolution = ""
 state = map
 pushingCan = False
-temp = pushingCan
+temp = False
 direction = "L"
 
 def makeMobe(string,pos,direction):
@@ -77,29 +77,44 @@ def makeMobe(string,pos,direction):
 
 
 for idx, c in enumerate(solution):
-    if temp == True and pushingCan == False:
-        glueSolution = glueSolution + 'D'
-        temp = pushingCan
-    else:
-        temp = pushingCan
     if direction == c:
         glueSolution = glueSolution + "F"
         state = makeMobe(state,pos,direction)
+        if temp == True and pushingCan == False:
+            glueSolution = glueSolution + 'D'
+            temp = pushingCan
+        else:
+            temp = pushingCan
     elif direction == "L" and c == 'U' or direction == "U" and c == 'R' or  direction == "R" and c == 'D' or  direction == "D" and c == 'L': #Turn Right
+        direction = c
+        state = makeMobe(state, pos, direction)
+        if temp == True and pushingCan == False:
+            glueSolution = glueSolution + 'D'
+            temp = pushingCan
+        else:
+            temp = pushingCan
         glueSolution = glueSolution + 'R'
         glueSolution = glueSolution + "F"
+    elif direction == "L" and c == 'D' or direction == "U" and c == 'L' or  direction == "R" and c == 'U' or  direction == "D" and c == 'R': #Turn Left
         direction = c
         state = makeMobe(state, pos, direction)
-    elif direction == "L" and c == 'D' or direction == "U" and c == 'L' or  direction == "R" and c == 'U' or  direction == "D" and c == 'R': #Turn Left
+        if temp == True and pushingCan == False:
+            glueSolution = glueSolution + 'D'
+            temp = pushingCan
+        else:
+            temp = pushingCan
         glueSolution = glueSolution + 'L'
         glueSolution = glueSolution + "F"
+    elif direction == "L" and c == 'R' or direction == "R" and c == 'L' or  direction == "U" and c == 'D' or  direction == "D" and c == 'U': #Turn Back
         direction = c
         state = makeMobe(state, pos, direction)
-    elif direction == "L" and c == 'R' or direction == "R" and c == 'L' or  direction == "U" and c == 'D' or  direction == "D" and c == 'U': #Turn Back
+        if temp == True and pushingCan == False:
+            glueSolution = glueSolution + 'D'
+            temp = pushingCan
+        else:
+            temp = pushingCan
         glueSolution = glueSolution + 'RR'
         glueSolution = glueSolution + "F"
-        direction = c
-        state = makeMobe(state, pos, direction)
     if direction == 'L':
         pos = pos - 1
     elif direction == 'R':
