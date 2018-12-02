@@ -15,11 +15,7 @@ assert sensorGripper.connected, "sensorGripper(LightSensor) is not conected"
 AMBIENT = 0
 REFLECT = 1
 COLOR = 2
-TOTALBLACK = 15
-HALFBLACKWHITE = 60
-BLACKLINE = 0
-ADJUSTSPEED = 1
-ONLINE = 2
+
 arrayofcolors = ('unknown','black','blue','green','yellow','red','white','brown')
 filterValue = [0,0,0,0]
 
@@ -28,32 +24,25 @@ def setmodeSensorsLR(mode):
         sensorLeft.mode = 'COL-AMBIENT' # measures lux
         sensorRight.mode = 'COL-AMBIENT' # measures lux
         sensorGripper.mode = 'AMBIENT'
-        print("sensor mode set to ambient")
+        print("Sensor mode set to ambient")
     elif mode == 1:
         sensorLeft.mode = 'COL-REFLECT' # measures light intensity
         sensorRight.mode = 'COL-REFLECT' # measures light intensity
         sensorGripper.mode = 'REFLECT'
-        print("sensor mode set to reflect")
+        print("Sensor mode set to reflect")
     else:
         sensorLeft.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
         sensorRight.mode = 'COL-COLOR' # measures color corresponting to arrayofcolors
-        print("sensor mode set to color")
+        print("Sensor mode set to color")
  # should be dynamic to the amount of background light
 def readRight():
     return sensorRight.value()
 def readLeft():
     return sensorLeft.value()
-def binarize(sensorValue): # use with sensor on'COL-REFLECT' mode
-    if sensorValue < TOTALBLACK:
-        return BLACKLINE
-    if sensorValue < HALFBLACKWHITE:
-        return ADJUSTSPEED
-    return ONLINE
-
 
 def readLineSensors():
-    left = binarize(sensorLeft.value())
-    right = binarize(sensorRight.value())
+    left = sensorLeft.value()
+    right = sensorRight.value()
     #print('left',sensorLeft.value(),'right',sensorRight.value())
     return left, right
 

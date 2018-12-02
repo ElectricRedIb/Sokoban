@@ -40,6 +40,10 @@ def turnLeft(position):
     motorLeft.run_to_rel_pos(position_sp=position, speed_sp=600, stop_action="brake")
     sleep(0.3)
 '''
+def getPositionLeft():
+    return motorLeft.position
+def getPositionRight():
+    return motorRight.position
 
 def coastMotors():
     motorRight.stop(stop_action="coast")
