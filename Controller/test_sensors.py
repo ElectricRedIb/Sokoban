@@ -83,11 +83,11 @@ while not complete:
 				motors.moveRel(110)
 			#print("change state",DOTHIS[pointer])
 	elif state == TURNRIGHT:
-		if (controller.turn('right')):
+		if (controller.turn('right',stateRepeate)):
 			pointer = pointer + 1
 			#print("change state",DOTHIS[pointer])
 	elif state == TURNLEFT:
-		if (controller.turn('left')):
+		if (controller.turn('left',stateRepeate)):
 			pointer = pointer + 1
 			#print("change state",DOTHIS[pointer])
 	elif state == REVERSE:

@@ -95,14 +95,14 @@ def turn(direction):
                 motors.stopMotors()
                 return 1
 '''
-def turn(direction):
+def turn(direction,repState):
     """returns 1 when turning is done"""
     state = 0
     turnsteps = 90
     initRight = motors.getPositionRight()
     initLeft = motors.getPositionLeft()
-
-    while True:
+    amountOfturns = 0
+    while amountOfturns < repState:
         left, right = sensor.readLineSensors()
         err = left - right
         if err < 0:
@@ -138,7 +138,8 @@ def turn(direction):
         elif state == 2:
             if err < 20:
                 motors.stopMotors()
-                return 1
+                amountOfturns = amountOfturns + 1
+    return 1
 
 def rev():
     motors.moveRel(-260) #550 #260 ved 7.30 strøm!
