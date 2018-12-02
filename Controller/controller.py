@@ -6,22 +6,31 @@ from difreg import difreg
 from time import sleep
 import ev3dev.ev3 as ev
 
+
 sensor.setmodeSensorsLR(sensor.REFLECT)
 
 power = ev.PowerSupply()
-voltage = power.measured_voltage/1000000
-print("State of battery: ")
-if voltage < 8.0:
-    print("     Under 8.0. Voltage at " + str(voltage))
-    MAXTURNSPEED = 500
-    MINTURNSPEED = 150
-    DRIVESPEED = 800
-else:
-    print("     Over 8.0. Voltage at " + str(voltage))
-    MAXTURNSPEED = 500*0.7
-    MINTURNSPEED = 150*0.7
-    DRIVESPEED = 800*0.9
-
+MAXTURNSPEED = 0
+MINTURNSPEED = 0
+DRIVESPEED = 0
+def batteryState():
+    global MAXTURNSPEED
+    global MINTURNSPEED
+    global DRIVESPEED
+    voltage = power.measured_voltage/1000000
+    if voltage < 8.0:
+        print("State of battery: ")
+        print("     Under 8.0. Voltage at " + str(voltage))
+        MAXTURNSPEED = 500
+        MINTURNSPEED = 150
+        DRIVESPEED = 1000
+    else:
+        print("State of battery: ")
+        print("     Over 8.0. Voltage at " + str(voltage))
+        MAXTURNSPEED = 500*0.7
+        MINTURNSPEED = 150*0.7
+        DRIVESPEED = 1000*0.9
+batteryState()
 
 
 #rightReg = lineFollow.lineFollow(DRIVESPEED,sensor.readRight())
@@ -95,14 +104,14 @@ def turn(direction):
                 motors.stopMotors()
                 return 1
 '''
-def turn(direction):
+def turn(direction,repState):
     """returns 1 when turning is done"""
     state = 0
     turnsteps = 90
     initRight = motors.getPositionRight()
     initLeft = motors.getPositionLeft()
-
-    while True:
+    amountOfturns = 0
+    while amountOfturns < repState:
         left, right = sensor.readLineSensors()
         err = left - right
         if err < 0:
@@ -138,7 +147,11 @@ def turn(direction):
         elif state == 2:
             if err < 20:
                 motors.stopMotors()
-                return 1
+                amountOfturns = amountOfturns + 1
+                initRight = motors.getPositionRight()
+                initLeft = motors.getPositionLeft()
+                state = 0
+    return 1
 
 def rev():
     motors.moveRel(-260) #550 #260 ved 7.30 strøm!
