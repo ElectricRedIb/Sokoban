@@ -72,8 +72,8 @@ else:
 pointer = 0
 startTime = dt.now()
 while not complete:
-	if pointer%10:
-		controller.batteryState()
+	#if pointer%50 == 0:
+	#	controller.batteryState()
 	state = DOTHIS[pointer].action
 	stateRepeate = DOTHIS[pointer].repeateAction
 	print(state, end='')

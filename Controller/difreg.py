@@ -1,10 +1,10 @@
 class difreg():
     """docstring for difreg."""
     int = 0
-    kp = 2.5
+    kp = 4
     ki = 20
     ti = 0.01
-    kd = 2.5
+    kd = 4
     td = ti
     lastErr = 0
     def regulate(self, leftsensor, rightsensor):

@@ -21,15 +21,15 @@ def batteryState():
     if voltage < 8.0:
         print("State of battery: ")
         print("     Under 8.0. Voltage at " + str(voltage))
-        MAXTURNSPEED = 500
-        MINTURNSPEED = 150
-        DRIVESPEED = 1000
+        MAXTURNSPEED = 300
+        MINTURNSPEED = 100
+        DRIVESPEED = 800
     else:
         print("State of battery: ")
         print("     Over 8.0. Voltage at " + str(voltage))
-        MAXTURNSPEED = 500*0.7
-        MINTURNSPEED = 150*0.7
-        DRIVESPEED = 1000*0.9
+        MAXTURNSPEED = 300*0.7
+        MINTURNSPEED = 100
+        DRIVESPEED = 800*0.9
 batteryState()
 
 
@@ -114,8 +114,10 @@ def turn(direction,repState):
     while amountOfturns < repState:
         left, right = sensor.readLineSensors()
         err = left - right
+
         if err < 0:
             err = err *-1
+        #print(err)
         if state == 0:
             if direction == 'right':
                 posRight = motors.getPositionRight()
@@ -128,7 +130,7 @@ def turn(direction,repState):
                 motors.driveLeftOnly(speed)
             else:
                 posLeft = motors.getPositionLeft()
-                if abs(initLeft-posLeft) < turnsteps-20:
+                if abs(initLeft-posLeft) < turnsteps:
                     speed = MAXTURNSPEED
                 else:
                     speed = MINTURNSPEED
@@ -154,7 +156,7 @@ def turn(direction,repState):
     return 1
 
 def rev():
-    motors.moveRel(-260) #550 #260 ved 7.30 strøm!
+    motors.moveRel(-265) #550 #260 ved 7.30 strøm!
     return 1
 
 def push():
@@ -167,4 +169,5 @@ def push():
             #crossSectionsPasted = crossSectionsPasted + 1
             #blackLinePasted = False
             #if crossSectionsPasted >= crossSections:
+            reg.reset()
             return 1
