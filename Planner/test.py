@@ -20,9 +20,9 @@ rows = int(Srows)
 jewels = int(Sjewels)
 
 #ss = sokobanSolver.sokobanSolver()
-#ss = sokobanSolver()
-#ss.solve()
-solution = "LDLLLUUUURRDRUUURULDDDLLLDDRULURRLDDLDDRUUURRUUUULLULDRRDRDDLDLLURRDRUUURULDDDLLDDDDRRULDLUUULURRDRUUURUULLLRDRURD"
+ss = sokobanSolver()
+solution = ss.solve()
+#solution = "LDLLLUUUURRDRUUURULDDDLLLDDRULURRLDDLDDRUUURRUUUULLULDRRDRDDLDLLURRDRUUURULDDDLLDDDDRRULDLUUULURRDRUUURUULLLRDRURD"
 glueSolution = ""
 state = map
 pushingCan = False

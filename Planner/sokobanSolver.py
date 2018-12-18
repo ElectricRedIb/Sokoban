@@ -58,13 +58,13 @@ class sokobanSolver():
         self.deadPixel = self.zombiePix(map)
 
 
-        print(startNode)
+        self.print_map(startNode)
 
         for idx, c in enumerate(map):
             if c == "G":
                 self.goalpos.append(idx)
-        print(self.deadPixel)
-        print(self.goalpos)
+        #print(self.deadPixel)
+        #print(self.goalpos)
 
         self.pyth = self.pythoMap(map)
         self.heuristics = self.heuristicsMap(map)
@@ -473,7 +473,7 @@ class sokobanSolver():
                  else:
                      temp = 0
                      for x in availMoves:
-                         if self.availableMoves(node.state,x, 0):
+                         if self.availableMoves(node.state,x, {}):
                              temp +=1
                      if temp == 0:
                          #self.print_map(node)
@@ -481,16 +481,17 @@ class sokobanSolver():
                          return True
         return False
 
-    def availableMoves(self,string,idx, j):                # if available move return true else
-       # availMoves = []
+    def availableMoves(self,string,idx, j={}):                # if available move return true else
+        availMoves = j
         tempPos = [idx + self.cols, idx + 1, idx - self.cols, idx - 1]
         for x in range(0,4):
             temp = False
             if string[tempPos[x]] != 'X' and string[tempPos[(x+2)%4]] != 'X':
                 if self.isClear(string, tempPos[x]) and self.isClear(string,tempPos[(x+2)%4]):
                     return True
-                elif string[tempPos[x]] == 'J' and tempPos[x] != j:
-                    if self.availableMoves(string,tempPos[x],idx):
+                elif string[tempPos[x]] == 'J' and not tempPos[x] in availMoves:#tempPos[x] != j:
+                    availMoves[tempPos[x]] = 1
+                    if self.availableMoves(string,tempPos[x],availMoves):
                         return True
         return False
 
@@ -554,14 +555,14 @@ class sokobanSolver():
         while not self.TreeOfStates[0] == None:
             n = heapq.heappop(self.TreeOfStates)
             if not n.state in closedList:
-                if i%1000 == 0:
-                    self.print_map(n)
-                    print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
+                #if i%1000 == 0:
+                    #self.print_map(n)
+                    #print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
                 if(self.goal_check(n)):
                     self.printSolution(n)
                     self.print_map(n)
                     print(n.step, " : ", self.Solution(n))
-                    break
+                    return self.Solution(n)
                 elif not(self.isdead(n)) :#and self.stateCheckList(n, closedList):
                     self.get_available_states(n)
                     closedList[n.state] = 1
