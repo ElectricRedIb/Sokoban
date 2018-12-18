@@ -458,7 +458,6 @@ class sokobanSolver():
                 for pix in self.deadPixel:
                     if idx == pix:
                         return True
-
         for g in self.goalpos:
              availMoves = []
              temp = True
