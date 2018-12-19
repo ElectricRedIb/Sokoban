@@ -1,8 +1,8 @@
 from sokobanSolver import sokobanSolver
 
-
+map2Path = "../Information/2018-competation-map"
 map = ""
-with open("../Information/2018-competation-map", 'r') as file:
+with open(map2Path, 'r') as file:
     setting = file.readline()
     lines = file.readlines()[0:]
 lines = [line.strip() for line in lines]
@@ -20,7 +20,7 @@ rows = int(Srows)
 jewels = int(Sjewels)
 
 #ss = sokobanSolver.sokobanSolver()
-ss = sokobanSolver()
+ss = sokobanSolver(map2Path)
 solution = ss.solve()
 #solution = "LDLLLUUUURRDRUUURULDDDLLLDDRULURRLDDLDDRUUURRUUUULLULDRRDRDDLDLLURRDRUUURULDDDLLDDDDRRULDLUUULURRDRUUURUULLLRDRURD"
 glueSolution = ""
@@ -42,7 +42,7 @@ def makeMobe(string,pos,direction):
     elif direction == 'D':
         tempPos = pos + cols
     x = tempPos
-    print(x)
+    #print(x)
     if state[x] == 'J':
         if direction == 'D':
             if state[x + cols] == '.' or state[x + cols] == 'G':

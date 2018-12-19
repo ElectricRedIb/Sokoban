@@ -33,12 +33,12 @@ class Node():
 
 
 class sokobanSolver():
-    def __init__(self):
+    def __init__(self,path2Map):
         self.TreeOfStates = []
         map = ""
         self.goalpos = []
 
-        with open("../Information/2018-competation-map", 'r') as file:
+        with open(path2Map, 'r') as file:
             setting = file.readline()
             lines = file.readlines()[0:]
         lines = [line.strip() for line in lines]
@@ -58,18 +58,31 @@ class sokobanSolver():
         self.deadPixel = self.zombiePix(map)
 
 
+        self.print_maplist(self.testdeadpixels(map))
         self.print_map(startNode)
 
         for idx, c in enumerate(map):
             if c == "G":
                 self.goalpos.append(idx)
-        #print(self.deadPixel)
+        print(self.deadPixel)
         #print(self.goalpos)
 
         self.pyth = self.pythoMap(map)
         self.heuristics = self.heuristicsMap(map)
         self.print_maplist(self.heuristics)
         self.print_maplist(self.pyth)
+
+    def testdeadpixels(self,string):
+        ret = ""
+        for x, c in enumerate(string):
+            if self.isDeadPixel(x):
+                ret += 'D'
+            else:
+                ret += c
+        return ret
+
+
+
 
     def goal_check(self, node):
         for pos in self.goalpos:
@@ -281,7 +294,7 @@ class sokobanSolver():
         goalRow = False
         tempIdx = 1
         for idx in range(1,self.rows-1):
-            print(idx * self.cols + 1)
+            #print(idx * self.cols + 1)
             if string[idx * self.cols + 1] == 'G':
                 goalRow = True
             elif string[idx * self.cols + 1] == 'X':
@@ -290,6 +303,40 @@ class sokobanSolver():
         if not goalRow:
             for idx in range(tempIdx,self.rows-1):
                 deadPixels.append(idx * self.cols + 1)
+        goalRow = False
+        tempIdx = 1
+        for idx in range(1,self.rows-1):
+            if string[idx * self.cols + self.cols-1] == 'G':
+                goalRow = True
+            elif string[idx * self.cols + self.cols-1] == 'X':
+                goalRow = False
+                tempIdx = idx
+        if not goalRow:
+            for idx in range(tempIdx,self.rows-1):
+                deadPixels.append(idx * self.cols + self.cols-1)
+        goalRow = False
+        tempIdx = 1
+        for idx in range(1, self.cols - 1):
+            if string[(self.rows-2)*self.cols + idx] == 'G':
+                goalRow = True
+            elif string[(self.rows-2)*self.cols + idx] == 'X':
+                goalRow = False
+                tempIdx = idx
+        if not goalRow:
+            for idx in range(tempIdx, self.cols - 1):
+                deadPixels.append((self.rows-2)*self.cols + idx)
+        goalRow = False
+        tempIdx = 1
+        for idx in range(1, self.cols - 1):
+            if string[self.cols + idx] == 'G':
+                goalRow = True
+            elif string[ self.cols + idx] == 'X':
+                goalRow = False
+                tempIdx = idx
+        if not goalRow:
+            for idx in range(tempIdx, self.cols - 1):
+                deadPixels.append(self.cols + idx)
+
         return deadPixels
 
     def deadString(self,string, j):
@@ -526,6 +573,7 @@ class sokobanSolver():
             return node
         else:
             self.print_map(self.printSolution(node.parent))
+            print(node.heu)
             return node
 
     def Solution(self,node):
@@ -554,9 +602,9 @@ class sokobanSolver():
         while not self.TreeOfStates[0] == None:
             n = heapq.heappop(self.TreeOfStates)
             if not n.state in closedList:
-                #if i%1000 == 0:
-                    #self.print_map(n)
-                    #print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
+                if i%1000 == 0:
+                    self.print_map(n)
+                    print(n.heu, " - ", n.step, " - ", self.goalCount(n.state))
                 if(self.goal_check(n)):
                     self.printSolution(n)
                     self.print_map(n)
